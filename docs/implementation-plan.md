@@ -63,7 +63,7 @@ Basar AI is a multi-brand SaaS for generating social images. Users create brands
 │                        Bunny Magic Containers                    │
 ├─────────────────────────────────────────────────────────────────┤
 │  ┌─────────────────┐         ┌─────────────────────────────────┐│
-│  │   Next.js 14    │  HTTP   │          FastAPI               ││
+│  │   Next.js 15    │  HTTP   │          FastAPI               ││
 │  │   (frontend)    │ ──────► │          (backend)             ││
 │  │                 │         │                                 ││
 │  │  - Auth UI      │         │  - Brand CRUD                  ││
@@ -98,7 +98,7 @@ Basar AI is a multi-brand SaaS for generating social images. Users create brands
 
 | Layer | Technology |
 |-------|------------|
-| Frontend | Next.js 14 (App Router) |
+| Frontend | Next.js 15 (App Router) |
 | Backend | FastAPI (Python) |
 | Auth | Supabase Auth |
 | Database | Supabase PostgreSQL |
@@ -1060,7 +1060,7 @@ frontend/
 | 1.6 | Initialize FastAPI project with dependencies |
 | 1.7 | Add auth middleware (JWT verification) |
 | 1.8 | Add health endpoint |
-| 1.9 | Initialize Next.js 14 project |
+| 1.9 | Initialize Next.js 15 project |
 | 1.10 | Configure Supabase auth |
 | 1.11 | Add auth pages (login, signup) |
 | 1.12 | Add protected route middleware |

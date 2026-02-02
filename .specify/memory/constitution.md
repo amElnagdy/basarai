@@ -56,7 +56,7 @@ The technology stack is fixed for MVP:
 
 | Layer | Technology |
 |-------|------------|
-| Frontend | Next.js 14 monolith |
+| Frontend | Next.js 15 monolith |
 | Backend | FastAPI |
 | Auth, DB, Vault, Storage | Supabase |
 | Hosting | Bunny Magic Containers |
