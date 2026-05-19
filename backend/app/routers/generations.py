@@ -366,3 +366,24 @@ async def generate_image(
             "INTERNAL_ERROR",
             "Something went wrong. Please try again.",
         )
+
+
+@router.get("/generations", response_model=list[GenerationResponse])
+async def list_generations(
+    brand_id: UUID,
+    current_user: User = Depends(get_current_user),
+) -> list[GenerationResponse]:
+    brand = _get_brand_or_404(brand_id, current_user.id)
+    brand_name = brand["name"]
+
+    client = get_service_client()
+    result = (
+        client.table("generations")
+        .select("*")
+        .eq("brand_id", str(brand_id))
+        .order("created_at", desc=True)
+        .limit(100)
+        .execute()
+    )
+    rows = result.data or []
+    return [_build_response(row, brand_name) for row in rows]
