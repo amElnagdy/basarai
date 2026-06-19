@@ -15,7 +15,7 @@ def test_is_admin_email_matches_allow_list_case_insensitively(monkeypatch):
     "admin_emails",
     [
         pytest.param("", id="empty"),
-        pytest.param("", id="unset"),
+        pytest.param(None, id="unset"),
     ],
 )
 def test_empty_or_unset_allow_list_denies_everyone(monkeypatch, admin_emails):

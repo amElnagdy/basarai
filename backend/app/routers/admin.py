@@ -68,7 +68,7 @@ def _to_stats_response(row: dict) -> AdminStatsResponse:
 
 
 @router.get("/stats", response_model=AdminStatsResponse)
-async def get_admin_stats():
+async def get_admin_stats() -> AdminStatsResponse:
     result = get_service_client().table("admin_stats").select("*").single().execute()
     return _to_stats_response(result.data)
 
