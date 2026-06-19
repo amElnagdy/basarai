@@ -195,3 +195,21 @@ export interface AdminStats {
   brand_kits_complete: number
   active_provider_keys: number
 }
+
+export interface AdminBrandListItem {
+  id: string
+  name: string
+  owner_user_id: string
+  owner_full_name: string | null
+  kit_status: string
+  generation_count: number
+  has_active_key: boolean
+  created_at: string
+}
+
+export interface AdminBrandsPage {
+  items: AdminBrandListItem[]
+  page: number
+  per_page: number
+  total: number
+}
