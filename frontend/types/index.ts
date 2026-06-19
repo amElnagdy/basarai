@@ -171,3 +171,27 @@ export interface GenerationHistoryPage {
 export interface GenerationDetail extends GenerationResponse {
   provider_request_id: string | null
 }
+
+export interface GenerationStatusBreakdown {
+  pending: number
+  processing: number
+  succeeded: number
+  failed: number
+}
+
+export interface GenerationProviderBreakdown {
+  openai: number
+  gemini: number
+}
+
+export interface AdminStats {
+  total_accounts: number
+  total_brands: number
+  total_generations: number
+  generations_by_status: GenerationStatusBreakdown
+  generations_by_provider: GenerationProviderBreakdown
+  generations_last_7d: number
+  generations_last_30d: number
+  brand_kits_complete: number
+  active_provider_keys: number
+}
