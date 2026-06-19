@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { useBrands } from '@/hooks/use-brands'
+import { useProfile } from '@/hooks/use-profile'
 import { BrandSelector } from '@/components/brand-selector'
 import { BrandsProvider } from '@/components/providers/brands-provider'
 
@@ -17,6 +18,7 @@ function DashboardLayoutContent({
   const params = useParams()
   const currentBrandId = params.brandId as string | undefined
   const { brands } = useBrands()
+  const { profile } = useProfile()
 
   async function handleLogout() {
     const supabase = createClient()
@@ -42,6 +44,14 @@ function DashboardLayoutContent({
             >
               Account
             </Link>
+            {profile?.is_admin && (
+              <Link
+                href="/admin"
+                className="text-sm text-muted-foreground hover:text-foreground"
+              >
+                Admin
+              </Link>
+            )}
             <Button variant="ghost" size="sm" onClick={handleLogout}>
               Log out
             </Button>
