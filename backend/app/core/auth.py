@@ -28,6 +28,18 @@ class User(BaseModel):
     access_token: str
 
 
+def is_admin_email(email: str) -> bool:
+    if not email or not settings.ADMIN_EMAILS:
+        return False
+
+    admin_emails = [
+        e.strip().lower()
+        for e in settings.ADMIN_EMAILS.split(",")
+        if e.strip()
+    ]
+    return email.lower() in admin_emails
+
+
 def _auth_error(status_code: int, code: str, message: str) -> HTTPException:
     """Build an HTTPException whose detail matches the ErrorResponse contract."""
     return HTTPException(
@@ -75,9 +87,7 @@ def get_current_user(credentials: Optional[HTTPAuthorizationCredentials] = Depen
 
 
 def get_current_admin_user(user: User = Depends(get_current_user)) -> User:
-    admin_emails = [e.strip().lower() for e in settings.ADMIN_EMAILS.split(",") if e.strip()] if settings.ADMIN_EMAILS else []
-
-    if user.email.lower() not in admin_emails:
+    if not is_admin_email(user.email):
         raise _auth_error(
             status.HTTP_403_FORBIDDEN,
             "FORBIDDEN",

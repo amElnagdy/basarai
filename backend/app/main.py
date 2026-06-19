@@ -6,7 +6,7 @@ from fastapi.responses import JSONResponse
 from uuid import uuid4
 
 from app.config import settings
-from app.routers import brands, generations, health, keys, kit, me
+from app.routers import admin, brands, generations, health, keys, kit, me
 
 
 @asynccontextmanager
@@ -31,6 +31,7 @@ app.add_middleware(
 
 app.include_router(health.router, tags=["health"])
 app.include_router(me.router, tags=["account"])
+app.include_router(admin.router)
 app.include_router(brands.router)
 app.include_router(keys.router)
 app.include_router(kit.router)
