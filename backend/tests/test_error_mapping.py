@@ -1,5 +1,3 @@
-from unittest.mock import Mock
-
 import httpx
 
 from app.services.error_mapping import ERROR_USER_MESSAGES, classify_provider_error

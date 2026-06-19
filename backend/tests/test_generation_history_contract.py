@@ -9,11 +9,11 @@ import pytest
 os.environ.setdefault("SUPABASE_URL", "http://127.0.0.1:54321")
 os.environ.setdefault("SUPABASE_SECRET_KEY", "test-secret-key")
 
-from fastapi import HTTPException
-from storage3.exceptions import StorageException
+from fastapi import HTTPException  # noqa: E402
+from storage3.exceptions import StorageException  # noqa: E402
 
-from app.routers import generations
-from app.routers.generations import (
+from app.routers import generations  # noqa: E402
+from app.routers.generations import (  # noqa: E402
     PROMPT_EXCERPT_LENGTH,
     _build_detail_response,
     _build_history_item,
