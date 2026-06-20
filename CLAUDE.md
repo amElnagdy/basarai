@@ -13,6 +13,8 @@ Auto-generated from all feature plans. Last updated: 2026-02-08
 - Supabase PostgreSQL — `brand_kits` table (already migrated) (005-brand-kit)
 - Python 3.13 (backend), TypeScript 5.x / Next.js 14 App Router (frontend) + FastAPI 0.109+, Pydantic 2.x, httpx (async HTTP), Pillow 10+ (post-process + watermark), **`google-genai` (NEW — official Google Gen AI SDK for Gemini image calls)**, `supabase-py` (Storage + DB + Vault RPC); shadcn/ui, Tailwind, react-hook-form, zod, lucide-react (frontend) (006-generation)
 - Supabase PostgreSQL — `generations` table (already migrated); Supabase Storage `brand-assets` bucket (public) — PNGs stored at `brands/{brandId}/generations/{generationId}.png`; Supabase Vault (read-only in this feature) — provider API keys resolved by `vault_secret_id` (006-generation)
+- Python 3.13 (backend), TypeScript 5.x / Next.js 14 App Router (frontend) + FastAPI 0.109+, Pydantic 2.x, `supabase-py` (service client over PostgREST, incl. views); Next.js 14, `@supabase/ssr`, shadcn/ui conventions, Tailwind CSS, lucide-reac (009-admin-dashboard)
+- Existing Supabase PostgreSQL. Adds two **read-only views** (`admin_stats`, `admin_brand_overview`) over existing `profiles`, `brands`, `brand_kits`, `provider_keys`, `generations`. No table/column changes. (009-admin-dashboard)
 
 - Python 3.13 (backend), TypeScript 5.x (frontend) + FastAPI 0.109+, Next.js 14 (App Router), @supabase/ssr, @supabase/supabase-js, PyJWT, supabase-py, shadcn/ui, Tailwind CSS (001-foundation)
 
@@ -39,9 +41,9 @@ cd frontend && npm run dev
 Python 3.13 (backend), TypeScript 5.x (frontend): Follow standard conventions
 
 ## Recent Changes
+- 009-admin-dashboard: Added Python 3.13 (backend), TypeScript 5.x / Next.js 14 App Router (frontend) + FastAPI 0.109+, Pydantic 2.x, `supabase-py` (service client over PostgREST, incl. views); Next.js 14, `@supabase/ssr`, shadcn/ui conventions, Tailwind CSS, lucide-reac
 - 006-generation: Added Python 3.13 (backend), TypeScript 5.x / Next.js 14 App Router (frontend) + FastAPI 0.109+, Pydantic 2.x, httpx (async HTTP), Pillow 10+ (post-process + watermark), **`google-genai` (NEW — official Google Gen AI SDK for Gemini image calls)**, `supabase-py` (Storage + DB + Vault RPC); shadcn/ui, Tailwind, react-hook-form, zod, lucide-react (frontend)
 - 005-brand-kit: Added Python 3.13 (backend), TypeScript 5.x / Next.js 14 (frontend) + FastAPI + Pydantic 2.x (backend); shadcn/ui, Tailwind CSS, react-hook-form (not used for wizard), Lucide React, zod (frontend)
-- 004-provider-keys: Added Python 3.13 (backend), TypeScript 5.x (frontend) + FastAPI 0.109+, Pydantic 2.x, supabase-py 2.3+, httpx (async HTTP for provider validation), Next.js 14 (App Router), @supabase/ssr, shadcn/ui, Tailwind CSS, zod, react-hook-form
 
 
 <!-- MANUAL ADDITIONS START -->
