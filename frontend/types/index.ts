@@ -3,6 +3,7 @@ export interface Profile {
   email: string
   full_name: string | null
   avatar_url: string | null
+  is_admin: boolean
   created_at: string
   updated_at: string
 }
@@ -170,4 +171,46 @@ export interface GenerationHistoryPage {
 
 export interface GenerationDetail extends GenerationResponse {
   provider_request_id: string | null
+}
+
+export interface GenerationStatusBreakdown {
+  pending: number
+  processing: number
+  succeeded: number
+  failed: number
+}
+
+export interface GenerationProviderBreakdown {
+  openai: number
+  gemini: number
+}
+
+export interface AdminStats {
+  total_accounts: number
+  total_brands: number
+  total_generations: number
+  generations_by_status: GenerationStatusBreakdown
+  generations_by_provider: GenerationProviderBreakdown
+  generations_last_7d: number
+  generations_last_30d: number
+  brand_kits_complete: number
+  active_provider_keys: number
+}
+
+export interface AdminBrandListItem {
+  id: string
+  name: string
+  owner_user_id: string
+  owner_full_name: string | null
+  kit_status: string
+  generation_count: number
+  has_active_key: boolean
+  created_at: string
+}
+
+export interface AdminBrandsPage {
+  items: AdminBrandListItem[]
+  page: number
+  per_page: number
+  total: number
 }

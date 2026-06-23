@@ -1,7 +1,7 @@
 import logging
 from uuid import uuid4
 from fastapi import APIRouter, Depends, HTTPException, status
-from app.core.auth import User, get_current_user
+from app.core.auth import User, get_current_user, is_admin_email
 from app.core.supabase import get_service_client
 from app.models.profile import ProfileResponse, UpdateProfileRequest
 
@@ -40,6 +40,7 @@ async def get_profile(current_user: User = Depends(get_current_user)):
         email=current_user.email,
         full_name=result.data.get("full_name"),
         avatar_url=result.data.get("avatar_url"),
+        is_admin=is_admin_email(current_user.email),
         created_at=result.data["created_at"],
         updated_at=result.data["updated_at"],
     )
@@ -80,6 +81,7 @@ async def update_profile(
         email=current_user.email,
         full_name=row.get("full_name"),
         avatar_url=row.get("avatar_url"),
+        is_admin=is_admin_email(current_user.email),
         created_at=row["created_at"],
         updated_at=row["updated_at"],
     )

@@ -1451,20 +1451,21 @@ frontend/
 
 **Checkpoint**: User can view and delete history. Hard delete verified.
 
-### Phase 8: Admin + Polish
+### Phase 8: Admin
+
+> **Scope update (2026-06-19)**: Phase 8 now covers the operator admin area only. The polish work (former tasks 8.5–8.7) has moved to the separate **UI/UX revamp** phase. Spec: `specs/009-admin-dashboard/`.
 
 | Task | Description |
 |------|-------------|
-| 8.1 | API: Admin brands endpoint |
-| 8.2 | API: Admin stats endpoint |
-| 8.3 | API: Admin gate (email allowlist) |
-| 8.4 | UI: Admin page |
-| 8.5 | Error handling polish |
-| 8.6 | Loading states |
-| 8.7 | Empty states |
+| 8.1 | API: Admin brands endpoint (`GET /admin/brands` — all brands + per-brand counts) |
+| 8.2 | API: Admin stats endpoint (`GET /admin/stats` — aggregate usage counts only, no cost/token tracking) |
+| 8.3 | API: Admin gate (email allowlist) — already implemented via `get_current_admin_user` + `ADMIN_EMAILS` |
+| 8.4 | UI: Admin page (gated, read-only dashboard: stats + all-brands list) |
 | 8.8 | Definition of Done verification |
 
-**Checkpoint**: All features complete. Definition of Done verified.
+**Moved to UI/UX revamp**: 8.5 Error handling polish · 8.6 Loading states · 8.7 Empty states.
+
+**Checkpoint**: Operator admin monitoring complete and verified; remaining polish handled in the UI/UX revamp.
 
 ---
 

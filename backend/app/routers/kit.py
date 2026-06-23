@@ -1,11 +1,11 @@
 from datetime import datetime, timezone
 from uuid import UUID, uuid4
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException
 
 from app.core.auth import User, get_current_user
 from app.core.supabase import get_service_client
-from app.models.kit import KitAnswers, UpsertKitRequest, KitResponse, KitStatusEnum, ToneEnum
+from app.models.kit import KitAnswers, UpsertKitRequest, KitResponse, KitStatusEnum
 from app.services.kit_summary import derive_status, derive_summary
 
 router = APIRouter(prefix="/brands/{brand_id}/kit", tags=["brand-kit"])
