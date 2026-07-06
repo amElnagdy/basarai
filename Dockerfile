@@ -44,6 +44,10 @@ COPY --from=frontend-builder /app/frontend/public /app/frontend/public
 COPY scripts/container-entrypoint.sh /app/scripts/container-entrypoint.sh
 RUN chmod +x /app/scripts/container-entrypoint.sh
 
+RUN mkdir -p /app/frontend/.next/cache && \
+    chown -R appuser:appuser /app/frontend/.next/cache && \
+    npm install --prefix /app/frontend sharp
+
 # (Removed build args from runtime stage since Next.js expects them at build time or runtime via actual env vars)
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
