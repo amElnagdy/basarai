@@ -1,8 +1,6 @@
-import Link from 'next/link'
 import { headers } from 'next/headers'
 import { notFound, redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { KitStatusBadge } from '@/components/kit/kit-status-badge'
 import { Brand } from '@/types'
 
 async function getServerApiUrl(path: string) {
@@ -90,44 +88,6 @@ export default async function BrandLayout({
   children: React.ReactNode
   params: { brandId: string }
 }) {
-  const { brandId } = params
-
-  const brand = await ensureBrandAccess(brandId)
-
-  const navLinks = [
-    { href: `/${brandId}`, label: 'Generator' },
-    { href: `/${brandId}/kit`, label: 'Brand Kit' },
-    { href: `/${brandId}/keys`, label: 'Keys' },
-    { href: `/${brandId}/history`, label: 'History' },
-    { href: `/${brandId}/settings`, label: 'Settings' },
-  ]
-
-  return (
-    <div>
-      <div className="mb-6 flex gap-4 border-b pb-2">
-        {navLinks.map((link) =>
-          link.href === `/${brandId}/kit` ? (
-            <div key={link.href} className="flex items-center gap-2">
-              <Link
-                href={link.href}
-                className="text-sm text-muted-foreground hover:text-foreground"
-              >
-                {link.label}
-              </Link>
-              <KitStatusBadge status={brand.kit_status} brandId={brandId} />
-            </div>
-          ) : (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="text-sm text-muted-foreground hover:text-foreground"
-            >
-              {link.label}
-            </Link>
-          )
-        )}
-      </div>
-      {children}
-    </div>
-  )
+  await ensureBrandAccess(params.brandId)
+  return <>{children}</>
 }

@@ -10,11 +10,11 @@ export default function KitPage() {
   const { kit, loading, error } = useKit(brandId)
 
   if (loading) {
-    return <p className="text-muted-foreground">Loading...</p>
+    return <p className="text-muted-foreground">Loading…</p>
   }
 
   if (error || !kit) {
-    return <p className="text-red-600">Failed to load brand kit.</p>
+    return <p className="text-destructive">Failed to load brand kit.</p>
   }
 
   return <KitWizard brandId={brandId} brandName={kit.brand_name} initialKit={kit} />

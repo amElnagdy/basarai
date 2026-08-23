@@ -1,78 +1,136 @@
+/* ============================================================
+   Basar — maps the design system onto the shadcn/ui variable
+   contract (space-separated HSL triplets consumed as hsl(var(--x))).
+
+   NAMING TRAP: shadcn's --accent is NOT the brand accent —
+   it is the subtle hover surface. The Basar accent is
+   --primary (petrol) and, per workspace, --brand.
+   ============================================================ */
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
+  .text-balance { text-wrap: balance; }
 }
-
-
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 0 0% 3.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 3.9%;
+    /* ---- shadcn contract — cool slate gallery wall ---- */
+    --background: 210 40% 98%;        /* #F8FAFC canvas */
+    --foreground: 222.2 47.4% 11.2%;  /* #0F172A text */
+    --card: 0 0% 100%;                /* #FFFFFF paper */
+    --card-foreground: 222.2 47.4% 11.2%;
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 3.9%;
-    --primary: 0 0% 9%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 0 0% 96.1%;
-    --secondary-foreground: 0 0% 9%;
-    --muted: 0 0% 96.1%;
-    --muted-foreground: 0 0% 45.1%;
-    --accent: 0 0% 96.1%;
-    --accent-foreground: 0 0% 9%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 89.8%;
-    --input: 0 0% 89.8%;
-    --ring: 0 0% 3.9%;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
-    --radius: 0.5rem;
+    --popover-foreground: 222.2 47.4% 11.2%;
+
+    --primary: 192 62.5% 31.4%;       /* #1E6E82 petrol */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 210 40% 96.1%;       /* #F1F5F9 */
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;   /* #64748B */
+
+    /* shadcn hover surface — deliberately neutral, NOT the brand */
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+
+    --destructive: 3.4 56.9% 42.7%;   /* #AB362F */
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 214.3 31.8% 91.4%;      /* #E2E8F0 */
+    --input: 214.3 31.8% 91.4%;
+    --ring: 192 62.5% 31.4%;
+
+    --radius: 0.75rem;                /* lg 12 · md 10 · sm 8 */
+
+    --success: 150 41.3% 31.4%;       /* #2F7150 */
+    --warning: 35.6 74.7% 31%;        /* #8A5A14 */
+
+    --surface-sunken: 210 40% 96.1%;
+    --border-subtle: 212.7 35.5% 93.9%;
+
+    --chart-1: 192 62.5% 31.4%;
+    --chart-2: 215.4 16.3% 46.9%;
+    --chart-3: 150 41.3% 31.4%;
+    --chart-4: 35.6 74.7% 31%;
+    --chart-5: 3.4 56.9% 42.7%;
+
+    /* Raw hex from the brand kit (colors[0]). Default = petrol.
+       Derived mixes MUST NOT be declared here — see * rule below. */
+    --brand: #1E6E82;
+    --on-brand: #FFFFFF;
   }
+
+  /* color-mix() resolves var(--brand) at the declaration scope.
+     Declaring derived accents on every element makes each one
+     re-mix from its inherited --brand. */
+  *, *::before, *::after {
+    --brand-hover:  color-mix(in srgb, var(--brand) 84%, #000);
+    --brand-active: color-mix(in srgb, var(--brand) 72%, #000);
+    --brand-weak:   color-mix(in srgb, var(--brand) 13%, hsl(var(--background)));
+    --brand-weaker: color-mix(in srgb, var(--brand) 7%,  hsl(var(--background)));
+    --brand-border: color-mix(in srgb, var(--brand) 34%, hsl(var(--border)));
+    --brand-ring:   color-mix(in srgb, var(--brand) 42%, transparent);
+  }
+
   .dark {
-    --background: 0 0% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 9%;
-    --secondary: 0 0% 14.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 63.9%;
-    --accent: 0 0% 14.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 14.9%;
-    --input: 0 0% 14.9%;
-    --ring: 0 0% 83.1%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
+    --background: 220 48.8% 8.4%;     /* #0B1220 */
+    --foreground: 210 40% 96.1%;
+    --card: 219.2 43.3% 11.8%;        /* #111A2B */
+    --card-foreground: 210 40% 96.1%;
+    --popover: 219.2 43.3% 11.8%;
+    --popover-foreground: 210 40% 96.1%;
+
+    --primary: 190.7 45.2% 87.8%;
+    --primary-foreground: 192.3 63.4% 25.7%;
+
+    --secondary: 220.6 41.5% 16.1%;
+    --secondary-foreground: 210 40% 96.1%;
+    --muted: 220.6 41.5% 16.1%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 220.6 41.5% 16.1%;
+    --accent-foreground: 210 40% 96.1%;
+
+    --destructive: 3.4 56.9% 42.7%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 219 37% 21.2%;
+    --input: 219 37% 21.2%;
+    --ring: 190.7 45.2% 87.8%;
+
+    --surface-sunken: 219.2 43.3% 11.8%;
+    --border-subtle: 220.6 41.5% 16.1%;
   }
 }
 
-
-
 @layer base {
-  * {
-    @apply border-border;
-  }
+  * { @apply border-border; }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans antialiased;
+    font-feature-settings: "kern" 1;
+  }
+  a { @apply text-foreground; }
+  a:hover { color: var(--brand); }
+
+  :focus-visible {
+    outline: 2px solid var(--brand);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background: color-mix(in srgb, var(--brand) 22%, transparent);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

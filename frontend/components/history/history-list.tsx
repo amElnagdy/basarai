@@ -3,6 +3,7 @@
 import { Loader2 } from 'lucide-react'
 import type { GenerationHistoryItem } from '@/types'
 import type { DeleteGenerationOutcome } from '@/hooks/use-delete-generation'
+import { Button } from '@/components/ui/button'
 import { HistoryCard } from './history-card'
 
 interface HistoryListProps {
@@ -40,43 +41,46 @@ export function HistoryList({
 
   if (error) {
     return (
-      <div className="rounded-md border border-destructive/30 bg-destructive/5 p-4 text-center">
-        <p className="text-sm text-destructive">{error}</p>
+      <div className="rounded-md border border-destructive/30 bg-[color-mix(in_srgb,hsl(var(--destructive))_8%,white)] p-4 text-center">
+        <p className="text-[13px] text-destructive">{error}</p>
       </div>
     )
   }
 
+  const loadMore = hasNext ? (
+    <div className="flex justify-center">
+      <Button
+        type="button"
+        variant="outline"
+        onClick={onLoadMore}
+        disabled={loadingMore}
+      >
+        {loadingMore ? 'Loading…' : 'Load more'}
+      </Button>
+    </div>
+  ) : null
+
   if (items.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 text-center">
+      <div className="flex flex-col items-center justify-center gap-6 py-20 text-center">
         <p className="text-muted-foreground">
           {filtered
             ? 'No history items match the selected filters.'
-            : 'No generation history yet. Create your first image on the Generator page.'}
+            : 'No generation history yet. Create your first image on Generate.'}
         </p>
+        {loadMore}
       </div>
     )
   }
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+      <div className="grid grid-cols-[repeat(auto-fill,minmax(196px,1fr))] gap-[11px]">
         {items.map((item) => (
           <HistoryCard key={item.id} item={item} brandId={brandId} search={search} onDelete={onDelete} />
         ))}
       </div>
-      {hasNext && (
-        <div className="flex justify-center">
-          <button
-            type="button"
-            onClick={onLoadMore}
-            disabled={loadingMore}
-            className="rounded-md border px-6 py-2 text-sm font-medium hover:bg-accent disabled:opacity-50"
-          >
-            {loadingMore ? 'Loading…' : 'Load more'}
-          </button>
-        </div>
-      )}
+      {loadMore}
     </div>
   )
 }

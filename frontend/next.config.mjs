@@ -24,6 +24,8 @@ const nextConfig = {
       afterFiles: [],
       fallback: [
         {
+          // Build-time destination. Standalone does not re-read next.config at
+          // start, so this must match the container default BACKEND_PORT (8000).
           source: '/api/:path*',
           destination: 'http://127.0.0.1:8000/:path*',
         },

@@ -3,6 +3,8 @@
 import { useState } from 'react'
 import { apiRequest } from '@/lib/api'
 import { Brand } from '@/types'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import {
   Dialog,
   DialogContent,
@@ -60,42 +62,36 @@ export function DeleteBrandDialog({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle className="text-red-600">Delete Brand</DialogTitle>
+          <DialogTitle className="text-destructive">Delete {brand.name}?</DialogTitle>
           <DialogDescription>
-            This action is permanent and cannot be undone. All data associated
-            with this brand (generated images, provider keys, brand kit) will be
-            permanently deleted.
+            This removes the brand, its kit, keys, and history. This cannot be undone.
           </DialogDescription>
         </DialogHeader>
         <div>
-          <p className="text-sm">
-            Type <strong>&quot;{brand.name}&quot;</strong> to confirm deletion:
+          <p className="text-[13px]">
+            Type <strong>&quot;{brand.name}&quot;</strong> to confirm:
           </p>
-          <input
+          <Input
             type="text"
             value={confirmName}
             onChange={(e) => setConfirmName(e.target.value)}
             placeholder="Type brand name to confirm"
-            className="mt-2 w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
+            className="mt-2"
           />
-          {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
+          {error && <p className="mt-2 text-[13px] text-destructive">{error}</p>}
         </div>
         <DialogFooter>
-          <button
-            type="button"
-            onClick={() => handleOpenChange(false)}
-            className="rounded-md border px-4 py-2 text-sm hover:bg-gray-50"
-          >
+          <Button type="button" variant="ghost" onClick={() => handleOpenChange(false)}>
             Cancel
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
+            variant="destructive"
             onClick={handleDelete}
             disabled={!canDelete}
-            className="rounded-md bg-red-600 px-4 py-2 text-sm text-white hover:bg-red-700 disabled:opacity-50"
           >
-            {loading ? 'Deleting...' : 'Delete Brand'}
-          </button>
+            {loading ? 'Deleting…' : 'Delete brand'}
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

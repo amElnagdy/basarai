@@ -1,8 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { Eye, EyeOff } from 'lucide-react'
 import { apiRequest } from '@/lib/api'
 import { ProviderKey } from '@/types'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { SegmentedControl } from '@/components/ui/segmented-control'
 import {
   Dialog,
   DialogContent,
@@ -36,6 +41,13 @@ export function AddKeyModal({
   const [showKey, setShowKey] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!open) return
+    if (defaultProvider === 'openai' || defaultProvider === 'gemini') {
+      setProvider(defaultProvider)
+    }
+  }, [open, defaultProvider])
 
   const handleOpenChange = (newOpen: boolean) => {
     if (!newOpen) {
@@ -73,102 +85,80 @@ export function AddKeyModal({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent>
+      <DialogContent className="max-w-[460px]">
         <DialogHeader>
-          <DialogTitle>Add API Key</DialogTitle>
+          <DialogTitle>Add API key</DialogTitle>
           <DialogDescription>
-            Add an API key for an AI image generation provider. The key will be stored securely and never shown again.
+            Add a key for an image provider. It is stored securely and never shown again.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="text-sm font-medium">Provider</label>
-            <div className="mt-1 flex gap-2">
-              <button
-                type="button"
-                onClick={() => setProvider('openai')}
-                className={`flex-1 rounded-md border px-3 py-2 text-sm ${
-                  provider === 'openai'
-                    ? 'border-blue-600 bg-blue-50 text-blue-700'
-                    : 'hover:bg-gray-50'
-                }`}
-              >
-                OpenAI
-              </button>
-              <button
-                type="button"
-                onClick={() => setProvider('gemini')}
-                className={`flex-1 rounded-md border px-3 py-2 text-sm ${
-                  provider === 'gemini'
-                    ? 'border-blue-600 bg-blue-50 text-blue-700'
-                    : 'hover:bg-gray-50'
-                }`}
-              >
-                Gemini
-              </button>
-            </div>
+          <div className="space-y-2">
+            <Label>Provider</Label>
+            <SegmentedControl
+              value={provider}
+              onChange={setProvider}
+              options={[
+                { value: 'openai', label: 'OpenAI' },
+                { value: 'gemini', label: 'Gemini' },
+              ]}
+            />
           </div>
 
-          <div>
-            <label className="text-sm font-medium">API Key</label>
-            <div className="relative mt-1">
-              <input
+          <div className="space-y-2">
+            <Label htmlFor="api-key">API key</Label>
+            <div className="relative">
+              <Input
+                id="api-key"
                 type={showKey ? 'text' : 'password'}
                 value={key}
                 onChange={(e) => setKey(e.target.value)}
-                placeholder={provider === 'openai' ? 'sk-...' : 'AI...'}
+                placeholder={provider === 'openai' ? 'sk-…' : 'AI…'}
                 required
-                className="w-full rounded-md border px-3 py-2 pr-16 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="pr-10 font-mono text-[13px]"
               />
               <button
                 type="button"
                 onClick={() => setShowKey(!showKey)}
-                className="absolute right-2 top-1/2 -translate-y-1/2 px-2 text-xs text-muted-foreground hover:text-foreground"
+                className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground"
+                aria-label={showKey ? 'Hide key' : 'Show key'}
               >
-                {showKey ? 'Hide' : 'Show'}
+                {showKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
           </div>
 
-          <div>
-            <label className="text-sm font-medium">Label (optional)</label>
-            <input
+          <div className="space-y-2">
+            <Label htmlFor="key-label">Label (optional)</Label>
+            <Input
+              id="key-label"
               type="text"
               value={label}
               onChange={(e) => setLabel(e.target.value)}
-              placeholder="e.g., Production key"
+              placeholder="e.g. Production key"
               maxLength={100}
-              className="mt-1 w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
-          <label className="flex items-center gap-2 text-sm">
+          <label className="flex items-center gap-2 text-[13px]">
             <input
               type="checkbox"
               checked={makeActive}
               onChange={(e) => setMakeActive(e.target.checked)}
-              className="rounded"
+              className="h-4 w-4 rounded border-input accent-[var(--brand)]"
             />
             Set as active key for this provider
           </label>
 
-          {error && <p className="text-sm text-red-600">{error}</p>}
+          {error && <p className="text-[13px] text-destructive">{error}</p>}
 
           <DialogFooter>
-            <button
-              type="button"
-              onClick={() => handleOpenChange(false)}
-              className="rounded-md border px-4 py-2 text-sm hover:bg-gray-50"
-            >
+            <Button type="button" variant="ghost" onClick={() => handleOpenChange(false)}>
               Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={loading || !key.trim()}
-              className="rounded-md bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700 disabled:opacity-50"
-            >
-              {loading ? 'Adding...' : 'Add Key'}
-            </button>
+            </Button>
+            <Button type="submit" disabled={loading || !key.trim()}>
+              {loading ? 'Adding…' : 'Add key'}
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

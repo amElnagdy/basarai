@@ -1,5 +1,6 @@
 'use client'
 
+import { KitQuestion } from '@/components/kit/kit-question'
 import { KitAnswers } from '@/types'
 
 interface StepProps {
@@ -10,12 +11,14 @@ interface StepProps {
 
 export function StepName({ brandName }: StepProps) {
   return (
-    <div className="space-y-4">
-      <h2 className="text-xl font-semibold">Screen 1 of 7 — Your Brand</h2>
-      <p className="text-lg font-medium">{brandName}</p>
-      <p className="text-sm text-muted-foreground">
-        This is the brand name you registered. Continue to the next screen.
-      </p>
+    <div className="space-y-6">
+      <KitQuestion
+        before="This is "
+        emphasis={brandName}
+        after="."
+        helper="The name you registered. Continue to tell Basar how it should look and sound."
+      />
+      <p className="text-[16px] font-semibold">{brandName}</p>
     </div>
   )
 }

@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import type { Provider } from '@/types'
+import { Notice } from '@/components/ui/notice'
 
 interface NoKeyNoticeProps {
   provider: Provider
@@ -9,14 +10,15 @@ interface NoKeyNoticeProps {
 export function NoKeyNotice({ provider, brandId }: NoKeyNoticeProps) {
   const label = provider === 'openai' ? 'OpenAI' : 'Gemini'
   return (
-    <div className="rounded-md border border-yellow-300 bg-yellow-50 p-3 text-sm text-yellow-900">
-      No active {label} key for this brand.{' '}
+    <Notice variant="warning">
+      No {label} key yet —{' '}
       <Link
         href={`/${brandId}/keys`}
         className="font-medium underline underline-offset-2"
       >
-        Add or activate a key
-      </Link>
-    </div>
+        Add one
+      </Link>{' '}
+      to generate with this provider.
+    </Notice>
   )
 }

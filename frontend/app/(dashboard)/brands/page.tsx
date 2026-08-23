@@ -2,9 +2,11 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { Plus } from 'lucide-react'
 import { useBrands } from '@/hooks/use-brands'
 import { CreateBrandModal } from '@/components/brand/create-brand-modal'
 import { BrandCard } from '@/components/brand/brand-card'
+import { Button } from '@/components/ui/button'
 import { Brand } from '@/types'
 
 export default function BrandsPage() {
@@ -19,38 +21,37 @@ export default function BrandsPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Brands</h1>
-        <button
-          type="button"
-          onClick={() => setShowCreateModal(true)}
-          className="rounded-md bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700"
-        >
-          Create Brand
-        </button>
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h1 className="text-[30px] font-semibold leading-[1.16] tracking-tight">Brands</h1>
+          <p className="mt-1 text-[14px] text-muted-foreground">
+            {brands.length} {brands.length === 1 ? 'studio' : 'studios'}. Each one remembers its own kit, keys, and history.
+          </p>
+        </div>
+        <Button type="button" onClick={() => setShowCreateModal(true)}>
+          <Plus className="h-4 w-4" />
+          Create brand
+        </Button>
       </div>
 
-      {loading && <p className="mt-4 text-muted-foreground">Loading...</p>}
+      {loading && <p className="mt-4 text-muted-foreground">Loading…</p>}
 
-      {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
+      {error && <p className="mt-4 text-[13px] text-destructive">{error}</p>}
 
       {!loading && !error && brands.length === 0 && (
-        <div className="mt-8 text-center">
-          <p className="text-muted-foreground">
-            No brands yet. Create your first brand to get started.
+        <div className="mt-12 text-center">
+          <p className="font-display text-[24px] text-muted-foreground">No studios yet.</p>
+          <p className="mt-2 text-[14px] text-muted-foreground">
+            Create your first brand to walk into the studio.
           </p>
-          <button
-            type="button"
-            onClick={() => setShowCreateModal(true)}
-            className="mt-4 rounded-md bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700"
-          >
-            Create Brand
-          </button>
+          <Button type="button" className="mt-6" onClick={() => setShowCreateModal(true)}>
+            Create brand
+          </Button>
         </div>
       )}
 
       {!loading && brands.length > 0 && (
-        <div className="mt-4 grid gap-4">
+        <div className="mt-6 flex flex-col gap-3">
           {brands.map((brand) => (
             <BrandCard key={brand.id} brand={brand} />
           ))}

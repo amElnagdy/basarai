@@ -1,5 +1,8 @@
 'use client'
 
+import { KitQuestion } from '@/components/kit/kit-question'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
 import { KitAnswers } from '@/types'
 
 interface StepProps {
@@ -10,26 +13,27 @@ interface StepProps {
 
 export function StepAudience({ answers, onChange }: StepProps) {
   return (
-    <div className="space-y-4">
-      <h2 className="text-xl font-semibold">Screen 4 of 7 — Audience</h2>
-      <p className="text-sm text-muted-foreground">
-        Who is your target audience?
-      </p>
-      <label htmlFor="kit-audience" className="text-sm font-medium">
-        Audience
-      </label>
-      <textarea
-        id="kit-audience"
-        value={answers.audience ?? ''}
-        maxLength={500}
-        onChange={(e) => onChange({ audience: e.target.value || null })}
-        className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
-        placeholder="Describe your target audience..."
-        rows={4}
+    <div className="space-y-6">
+      <KitQuestion
+        before="Who is it "
+        emphasis="for"
+        after="?"
+        helper="A few sentences on who should feel spoken to."
       />
-      <p className="text-xs text-muted-foreground">
-        {answers.audience?.length ?? 0}/500
-      </p>
+      <div className="space-y-2">
+        <Label htmlFor="kit-audience">Audience</Label>
+        <Textarea
+          id="kit-audience"
+          value={answers.audience ?? ''}
+          maxLength={500}
+          onChange={(e) => onChange({ audience: e.target.value || null })}
+          placeholder="Describe your target audience…"
+          rows={4}
+        />
+        <p className="text-[12px] text-muted-foreground">
+          {answers.audience?.length ?? 0}/500
+        </p>
+      </div>
     </div>
   )
 }

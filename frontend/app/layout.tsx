@@ -1,13 +1,23 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import { Instrument_Serif, Hanken_Grotesk } from "next/font/google";
 import { Toaster } from "@/components/ui/toaster";
 import "./globals.css";
 
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
+const display = Instrument_Serif({
+  subsets: ["latin"],
+  weight: "400",
+  style: ["normal", "italic"],
+  variable: "--font-display",
+  display: "swap",
 });
+
+const sans = Hanken_Grotesk({
+  subsets: ["latin"],
+  variable: "--font-sans",
+  display: "swap",
+});
+
 const geistMono = localFont({
   src: "./fonts/GeistMonoVF.woff",
   variable: "--font-geist-mono",
@@ -15,8 +25,8 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Basar AI",
-  description: "AI-powered brand image generation",
+  title: "Basar",
+  description: "A brand studio for platform-ready images",
 };
 
 export default function RootLayout({
@@ -25,10 +35,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+    <html
+      lang="en"
+      className={`${display.variable} ${sans.variable} ${geistMono.variable}`}
+    >
+      <body className="font-sans antialiased">
         {children}
         <Toaster />
       </body>
