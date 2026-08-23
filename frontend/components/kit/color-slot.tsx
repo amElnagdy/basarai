@@ -1,9 +1,10 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import { Trash2 } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
-import { formatHex, normalizeHex } from '@/components/brand/brand-workspace'
+import { formatHex, isKitColor, normalizeHex } from '@/components/brand/brand-workspace'
 
 interface ColorSlotProps {
   value: string
@@ -22,8 +23,25 @@ export function ColorSlot({
   onRemove,
   onMakePrimary,
 }: ColorSlotProps) {
-  const valid = Boolean(normalizeHex(value))
-  const display = valid ? formatHex(value) : value
+  const [draft, setDraft] = useState(value)
+  const swatch = formatHex(draft)
+  const swatchReady = Boolean(normalizeHex(draft))
+  const invalid = draft.length > 0 && !isKitColor(draft) && !normalizeHex(draft)
+
+  useEffect(() => {
+    setDraft(value)
+  }, [value])
+
+  function commit(raw: string) {
+    const hex = normalizeHex(raw)
+    if (!hex) {
+      onChange(raw)
+      return
+    }
+    const canonical = `#${hex}`
+    setDraft(canonical)
+    onChange(canonical)
+  }
 
   return (
     <div
@@ -33,11 +51,15 @@ export function ColorSlot({
       )}
     >
       <label className="relative h-[42px] w-[42px] shrink-0 cursor-pointer overflow-hidden rounded-md border border-border">
-        <span className="absolute inset-0" style={{ background: valid ? formatHex(value) : '#CBD5E1' }} />
+        <span className="absolute inset-0" style={{ background: swatchReady ? swatch : '#CBD5E1' }} />
         <input
           type="color"
-          value={valid ? formatHex(value) : '#000000'}
-          onChange={(e) => onChange(e.target.value.toUpperCase())}
+          value={swatchReady ? swatch : '#000000'}
+          onChange={(e) => {
+            const next = e.target.value.toUpperCase()
+            setDraft(next)
+            onChange(next)
+          }}
           aria-label="Color picker"
           className="absolute inset-0 cursor-pointer opacity-0"
         />
@@ -58,14 +80,20 @@ export function ColorSlot({
         )}
         <Input
           type="text"
-          value={display.toUpperCase()}
-          onChange={(e) => onChange(e.target.value)}
+          value={draft.toUpperCase()}
+          onChange={(e) => {
+            const next = e.target.value
+            setDraft(next)
+            onChange(next)
+          }}
+          onBlur={() => commit(draft)}
           maxLength={7}
           placeholder="#RRGGBB"
           aria-label="Hex color value"
+          aria-invalid={invalid}
           className={cn(
             'h-8 w-[116px] font-mono text-[12px] uppercase',
-            !valid && 'border-destructive',
+            invalid && 'border-destructive',
           )}
         />
       </div>

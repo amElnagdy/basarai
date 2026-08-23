@@ -31,6 +31,11 @@ export function normalizeHex(input: string): string | null {
   return /^[0-9a-f]{6}$/i.test(c) ? c.toUpperCase() : null
 }
 
+/** Same rule as backend KitAnswers.colors: # plus exactly six hex digits. */
+export function isKitColor(input: string): boolean {
+  return /^#[0-9A-Fa-f]{6}$/.test(input)
+}
+
 export function formatHex(input: string): string {
   const c = normalizeHex(input)
   return c ? `#${c}` : input

@@ -14,6 +14,7 @@ import { StepColors } from './steps/step-colors'
 import { StepAvoidWords } from './steps/step-avoid-words'
 import { StepReview } from './steps/step-review'
 import { KitStatusBadge } from './kit-status-badge'
+import { isKitColor } from '@/components/brand/brand-workspace'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
@@ -108,6 +109,7 @@ export function KitWizard({ brandId, brandName, initialKit }: KitWizardProps) {
   }, [])
 
   const last = step === STEPS.length - 1
+  const colorsInvalid = answers.colors.some((color) => !isKitColor(color))
 
   return (
     <div className="mx-auto flex max-w-[780px] flex-col gap-8">
@@ -181,7 +183,7 @@ export function KitWizard({ brandId, brandName, initialKit }: KitWizardProps) {
           Back
         </Button>
         {last ? (
-          <Button type="button" onClick={handleSave} disabled={saving}>
+          <Button type="button" onClick={handleSave} disabled={saving || colorsInvalid}>
             <Check className="h-4 w-4" />
             {saving ? 'Saving…' : 'Save brand kit'}
           </Button>
