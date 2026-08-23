@@ -10,11 +10,14 @@ interface PromptInputProps {
   disabled?: boolean
 }
 
+const MIN = 3
 const MAX = 4000
 
 export function PromptInput({ value, onChange, disabled }: PromptInputProps) {
   const length = value.length
-  const tooLong = length > MAX
+  const trimmed = value.trim().length
+  const tooShort = trimmed > 0 && trimmed < MIN
+  const tooLong = trimmed > MAX
 
   return (
     <div className="flex flex-col gap-2">
@@ -31,12 +34,15 @@ export function PromptInput({ value, onChange, disabled }: PromptInputProps) {
         <span
           className={cn(
             'pointer-events-none absolute bottom-2 right-3 font-mono text-[11px] tabular-nums text-muted-foreground',
-            tooLong && 'text-destructive',
+            (tooShort || tooLong) && 'text-destructive',
           )}
         >
           {length} / {MAX}
         </span>
       </div>
+      {tooShort && (
+        <p className="text-[12px] text-muted-foreground">Minimum {MIN} characters.</p>
+      )}
     </div>
   )
 }

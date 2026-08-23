@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { useParams, usePathname, useRouter } from 'next/navigation'
 import { PanelLeft } from 'lucide-react'
 import { BrandWorkspace } from '@/components/brand/brand-workspace'
@@ -32,6 +32,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const [createOpen, setCreateOpen] = useState(false)
   const [navOpen, setNavOpen] = useState(false)
   const [narrow, setNarrow] = useState(false)
+  const drawerRef = useRef<HTMLDivElement>(null)
 
   const wearBrand = Boolean(currentBrandId) && !isNeutralRoute(pathname)
   const accent = currentBrandId ? accents[currentBrandId] : undefined
@@ -47,6 +48,13 @@ export function AppShell({ children }: { children: ReactNode }) {
     media.addEventListener('change', sync)
     return () => media.removeEventListener('change', sync)
   }, [])
+
+  useEffect(() => {
+    const el = drawerRef.current
+    if (!el) return
+    if (narrow && !navOpen) el.setAttribute('inert', '')
+    else el.removeAttribute('inert')
+  }, [narrow, navOpen])
 
   function handleBrandCreated(brand: Brand) {
     addBrand(brand)
@@ -64,7 +72,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         />
       )}
       <div
-        inert={narrow && !navOpen ? true : undefined}
+        ref={drawerRef}
         className={cn(
           'z-40 h-full w-[248px] max-md:fixed max-md:inset-y-0 max-md:left-0 max-md:bg-background max-md:shadow-lg max-md:transition-transform max-md:duration-fast max-md:ease-out',
           navOpen ? 'max-md:translate-x-0' : 'max-md:-translate-x-full',

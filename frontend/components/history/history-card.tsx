@@ -88,6 +88,9 @@ export function HistoryCard({ item, brandId, search, onDelete }: HistoryCardProp
                 {item.error_message}
               </p>
             )}
+            <p className="mt-1.5 text-[12px] text-muted-foreground">
+              {new Date(item.created_at).toLocaleDateString()}
+            </p>
           </div>
         </Link>
         <button
