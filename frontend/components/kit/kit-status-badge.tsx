@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { Badge } from '@/components/ui/badge'
 import { KitStatus } from '@/types'
 
 const LABELS: Record<KitStatus, string> = {
@@ -7,20 +8,37 @@ const LABELS: Record<KitStatus, string> = {
   complete: 'Complete',
 }
 
-const CLASSES: Record<KitStatus, string> = {
-  not_started: 'bg-gray-100 text-gray-700',
-  in_progress: 'bg-yellow-100 text-yellow-800',
-  complete: 'bg-green-100 text-green-800',
+const VARIANTS: Record<KitStatus, 'muted' | 'warning' | 'success'> = {
+  not_started: 'muted',
+  in_progress: 'warning',
+  complete: 'success',
 }
 
-export function KitStatusBadge({ status, brandId }: { status: KitStatus; brandId: string }) {
+export function KitStatusBadge({
+  status,
+  brandId,
+}: {
+  status: KitStatus
+  brandId?: string
+}) {
+  const badge = (
+    <Badge
+      variant={VARIANTS[status]}
+      aria-label={`Brand kit status: ${LABELS[status]}`}
+    >
+      {LABELS[status]}
+    </Badge>
+  )
+
+  if (!brandId) return badge
+
   return (
     <Link
       href={`/${brandId}/kit`}
-      className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${CLASSES[status]}`}
+      className="no-underline"
       aria-label={`Brand kit status: ${LABELS[status]}. Click to edit.`}
     >
-      {LABELS[status]}
+      {badge}
     </Link>
   )
 }

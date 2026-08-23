@@ -2,10 +2,13 @@
 
 import { useState } from 'react'
 import { useParams } from 'next/navigation'
+import { Plus } from 'lucide-react'
 import { useKeys } from '@/hooks/use-keys'
 import { ProviderTabs } from '@/components/keys/provider-tabs'
 import { KeyCard } from '@/components/keys/key-card'
 import { AddKeyModal } from '@/components/keys/add-key-modal'
+import { Button } from '@/components/ui/button'
+import { Notice } from '@/components/ui/notice'
 import { apiRequest } from '@/lib/api'
 import { ProviderKey, ValidateKeyResponse } from '@/types'
 
@@ -62,46 +65,40 @@ export default function KeysPage() {
   }
 
   if (loading) {
-    return <p className="text-muted-foreground">Loading...</p>
+    return <p className="text-muted-foreground">Loading…</p>
   }
 
   if (error) {
-    return <p className="text-red-600">Failed to load keys.</p>
+    return <p className="text-destructive">Failed to load keys.</p>
   }
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold">API Keys</h2>
-        <button
-          type="button"
-          onClick={() => handleAddClick('openai')}
-          className="rounded-md bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700"
-        >
-          Add Key
-        </button>
+      <div className="flex items-center justify-between gap-4">
+        <h1 className="text-[30px] font-semibold leading-[1.16] tracking-tight">Keys</h1>
+        <Button type="button" onClick={() => handleAddClick('openai')}>
+          <Plus className="h-4 w-4" />
+          Add key
+        </Button>
       </div>
 
-      {actionError && (
-        <p className="text-sm text-red-600">{actionError}</p>
-      )}
+      {actionError && <Notice variant="danger">{actionError}</Notice>}
 
       <ProviderTabs keys={keys}>
         {(filteredKeys, activeProvider) => (
-          <div className="space-y-3">
+          <div className="space-y-2.5">
             {filteredKeys.length === 0 ? (
-              <div className="rounded-lg border border-dashed p-8 text-center">
-                <p className="text-sm text-muted-foreground">
-                  No {activeProvider} keys yet. Add your first key to start generating images.
-                </p>
+              <Notice variant="warning">
+                No {activeProvider === 'openai' ? 'OpenAI' : 'Gemini'} key yet —{' '}
                 <button
                   type="button"
                   onClick={() => handleAddClick(activeProvider)}
-                  className="mt-3 rounded-md border px-3 py-1.5 text-sm hover:bg-gray-50"
+                  className="font-medium underline underline-offset-2"
                 >
-                  Add {activeProvider === 'openai' ? 'OpenAI' : 'Gemini'} Key
-                </button>
-              </div>
+                  Add one
+                </button>{' '}
+                to generate with this provider.
+              </Notice>
             ) : (
               filteredKeys.map((k) => (
                 <KeyCard

@@ -12,6 +12,8 @@ if (supabaseUrl) {
   });
 }
 
+const backendUrl = (process.env.NEXT_SERVER_API_URL || 'http://127.0.0.1:8000').replace(/\/+$/, '');
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'standalone',
@@ -25,7 +27,7 @@ const nextConfig = {
       fallback: [
         {
           source: '/api/:path*',
-          destination: 'http://127.0.0.1:8000/:path*',
+          destination: `${backendUrl}/:path*`,
         },
       ],
     };

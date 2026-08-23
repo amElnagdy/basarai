@@ -1,37 +1,41 @@
 'use client'
 
+import { Eyebrow } from '@/components/ui/eyebrow'
+import { Textarea } from '@/components/ui/textarea'
+import { cn } from '@/lib/utils'
+
 interface PromptInputProps {
   value: string
   onChange: (value: string) => void
   disabled?: boolean
 }
 
-const MIN = 3
 const MAX = 4000
 
 export function PromptInput({ value, onChange, disabled }: PromptInputProps) {
-  const trimmedLength = value.trim().length
-  const tooShort = trimmedLength > 0 && trimmedLength < MIN
-  const tooLong = trimmedLength > MAX
+  const length = value.length
+  const tooLong = length > MAX
 
   return (
-    <div className="flex flex-col gap-1">
-      <label className="text-sm font-medium">Prompt</label>
-      <textarea
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        disabled={disabled}
-        rows={5}
-        placeholder="Describe the image you want…"
-        className="w-full rounded-md border border-input bg-background p-2 text-sm disabled:opacity-50"
-        maxLength={MAX + 200}
-      />
-      <div className="flex justify-between text-xs text-muted-foreground">
-        <span>
-          {tooShort && `Minimum ${MIN} characters`}
-          {tooLong && `Maximum ${MAX} characters`}
+    <div className="flex flex-col gap-2">
+      <Eyebrow>Prompt</Eyebrow>
+      <div className="relative">
+        <Textarea
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          disabled={disabled}
+          placeholder="Describe the image…"
+          className="min-h-[128px] pb-7 text-[15px] leading-[1.5]"
+          maxLength={MAX + 200}
+        />
+        <span
+          className={cn(
+            'pointer-events-none absolute bottom-2 right-3 font-mono text-[11px] tabular-nums text-muted-foreground',
+            tooLong && 'text-destructive',
+          )}
+        >
+          {length} / {MAX}
         </span>
-        <span>{trimmedLength} / {MAX}</span>
       </div>
     </div>
   )

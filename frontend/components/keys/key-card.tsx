@@ -1,6 +1,8 @@
 'use client'
 
 import { ProviderKey } from '@/types'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 
 interface KeyCardProps {
   keyData: ProviderKey
@@ -12,68 +14,75 @@ interface KeyCardProps {
 
 export function KeyCard({ keyData, onValidate, onActivate, onDelete, isValidating }: KeyCardProps) {
   return (
-    <div className="rounded-lg border p-4 space-y-3">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <span className="font-mono text-sm text-muted-foreground">
-            ****{keyData.key_hint || '????'}
+    <div className="space-y-2.5 rounded-lg border border-border px-4 py-[15px]">
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex min-w-0 items-center gap-2">
+          <span className="font-mono text-[13px] text-foreground">
+            ••••{keyData.key_hint || '????'}
           </span>
           {keyData.label && (
-            <span className="text-sm text-muted-foreground">— {keyData.label}</span>
+            <span className="truncate text-[12px] text-muted-foreground">
+              — {keyData.label}
+            </span>
           )}
         </div>
         {keyData.is_active && (
-          <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">
+          <Badge variant="success" className="gap-1 normal-case tracking-normal">
+            <span className="h-1.5 w-1.5 rounded-full bg-success" />
             Active
-          </span>
+          </Badge>
         )}
       </div>
 
       {keyData.is_valid !== null && (
-        <div className="text-xs text-muted-foreground">
+        <div className="text-[12px]">
           {keyData.is_valid ? (
-            <span className="text-green-600">Valid</span>
+            <span className="text-success">✓ Valid</span>
           ) : (
-            <span className="text-red-600">
+            <span className="text-destructive">
               Invalid{keyData.last_validation_error ? `: ${keyData.last_validation_error}` : ''}
             </span>
           )}
           {keyData.last_validated_at && (
-            <span className="ml-2">
-              (checked {new Date(keyData.last_validated_at).toLocaleDateString()})
+            <span className="ml-2 text-muted-foreground">
+              checked {new Date(keyData.last_validated_at).toLocaleDateString()}
             </span>
           )}
         </div>
       )}
 
-      <div className="flex gap-2 pt-1">
+      <div className="flex flex-wrap gap-2 pt-1">
         {onValidate && (
-          <button
+          <Button
             type="button"
+            variant="outline"
+            size="sm"
             onClick={() => onValidate(keyData.id)}
             disabled={isValidating}
-            className="rounded-md border px-3 py-1 text-xs hover:bg-gray-50 disabled:opacity-50"
           >
-            {isValidating ? 'Validating...' : 'Validate'}
-          </button>
+            {isValidating ? 'Validating…' : 'Validate'}
+          </Button>
         )}
         {onActivate && !keyData.is_active && (
-          <button
+          <Button
             type="button"
+            variant="outline"
+            size="sm"
             onClick={() => onActivate(keyData.id)}
-            className="rounded-md border px-3 py-1 text-xs hover:bg-gray-50"
           >
             Activate
-          </button>
+          </Button>
         )}
         {onDelete && (
-          <button
+          <Button
             type="button"
+            variant="ghost"
+            size="sm"
             onClick={() => onDelete(keyData.id)}
-            className="rounded-md border border-red-200 px-3 py-1 text-xs text-red-600 hover:bg-red-50"
+            className="text-destructive hover:bg-destructive/10 hover:text-destructive"
           >
             Delete
-          </button>
+          </Button>
         )}
       </div>
     </div>

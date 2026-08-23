@@ -1,5 +1,9 @@
 'use client'
 
+import { KitQuestion } from '@/components/kit/kit-question'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { cn } from '@/lib/utils'
 import { KitAnswers } from '@/types'
 
 interface StepProps {
@@ -8,28 +12,52 @@ interface StepProps {
   brandName: string
 }
 
-export function StepTagline({ answers, onChange }: StepProps) {
+export function StepTagline({ answers, onChange, brandName }: StepProps) {
+  const examples = [
+    `${brandName}. Seen clearly.`,
+    'Made to be remembered.',
+    'Quietly distinctive.',
+  ]
+
   return (
-    <div className="space-y-4">
-      <h2 className="text-xl font-semibold">Screen 2 of 7 — Tagline</h2>
-      <p className="text-sm text-muted-foreground">
-        What is your brand&apos;s tagline or slogan? (optional)
-      </p>
-      <label htmlFor="kit-tagline" className="text-sm font-medium">
-        Tagline (optional)
-      </label>
-      <input
-        id="kit-tagline"
-        type="text"
-        value={answers.tagline ?? ''}
-        maxLength={160}
-        onChange={(e) => onChange({ tagline: e.target.value || null })}
-        className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
-        placeholder="Enter your tagline..."
+    <div className="space-y-6">
+      <KitQuestion
+        before="What's "
+        emphasis={`${brandName}'s`}
+        after=" tagline?"
+        helper="Optional. A short line Basar can weave into the image brief."
       />
-      <p className="text-xs text-muted-foreground">
-        {answers.tagline?.length ?? 0}/160
-      </p>
+      <div className="space-y-2">
+        <Label htmlFor="kit-tagline">Tagline</Label>
+        <Input
+          id="kit-tagline"
+          type="text"
+          value={answers.tagline ?? ''}
+          maxLength={160}
+          onChange={(e) => onChange({ tagline: e.target.value || null })}
+          placeholder="Enter a tagline…"
+        />
+        <p className="text-[12px] text-muted-foreground">
+          {answers.tagline?.length ?? 0}/160
+        </p>
+      </div>
+      <div className="flex flex-wrap gap-2">
+        {examples.map((example) => (
+          <button
+            key={example}
+            type="button"
+            onClick={() => onChange({ tagline: example })}
+            className={cn(
+              'rounded-full border px-3 py-1.5 text-[13px] transition-colors duration-fast',
+              answers.tagline === example
+                ? 'border-brand bg-brand-weak text-foreground'
+                : 'border-border hover:border-brand-border',
+            )}
+          >
+            {example}
+          </button>
+        ))}
+      </div>
     </div>
   )
 }

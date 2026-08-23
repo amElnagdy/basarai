@@ -2,9 +2,11 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { TriangleAlert } from 'lucide-react'
 import type { GenerationHistoryItem } from '@/types'
 import type { DeleteGenerationOutcome } from '@/hooks/use-delete-generation'
 import { PLATFORM_PRESETS } from '@/lib/presets'
+import { Badge } from '@/components/ui/badge'
 import { DeleteGenerationDialog } from './delete-generation-dialog'
 
 interface HistoryCardProps {
@@ -22,7 +24,7 @@ export function HistoryCard({ item, brandId, search, onDelete }: HistoryCardProp
   const [deleteError, setDeleteError] = useState<string | null>(null)
   const [imageUnavailable, setImageUnavailable] = useState(false)
   const showImage = Boolean(item.image_url) && !imageUnavailable
-  const unavailableText = item.status === 'failed' ? 'Failed' : 'Image unavailable'
+  const failed = item.status === 'failed'
 
   async function handleConfirmDelete() {
     setDeleting(true)
@@ -43,56 +45,50 @@ export function HistoryCard({ item, brandId, search, onDelete }: HistoryCardProp
 
   return (
     <>
-      <div className="group relative block overflow-hidden rounded-lg border bg-card transition-shadow hover:shadow-md">
-        <Link href={href} className="block">
-          <div className="aspect-square w-full overflow-hidden bg-muted">
+      <div className="group relative overflow-hidden rounded-lg border bg-card transition-shadow duration-fast hover:shadow-md">
+        <Link href={href} className="block no-underline">
+          <div className="aspect-square w-full overflow-hidden bg-surface-sunken">
             {showImage ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={item.image_url ?? undefined}
                 alt={item.prompt_excerpt}
-                className="h-full w-full object-cover transition-transform group-hover:scale-105"
+                className="h-full w-full object-cover"
                 onError={() => setImageUnavailable(true)}
               />
             ) : (
-              <div className="flex h-full w-full items-center justify-center p-4 text-center">
-                <span className="text-xs text-muted-foreground">{unavailableText}</span>
+              <div className="flex h-full w-full flex-col items-center justify-center gap-2 p-4 text-center">
+                <TriangleAlert className="h-5 w-5 text-muted-foreground" />
+                <span className="text-[12px] text-muted-foreground">
+                  {failed ? 'Failed' : 'Image unavailable'}
+                </span>
               </div>
             )}
           </div>
           <div className="p-3">
-            <p className="line-clamp-2 break-words text-sm leading-snug">{item.prompt_excerpt}</p>
-            <div className="mt-2 flex flex-wrap gap-1.5">
-              <span className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+            <p className="line-clamp-2 break-words text-[12px] leading-snug">{item.prompt_excerpt}</p>
+            <div className="mt-1.5 flex flex-wrap gap-1.5">
+              <Badge variant="muted" className="normal-case tracking-normal">
                 {item.provider}
-              </span>
+              </Badge>
               {preset && (
-                <span className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
-                  {preset.label}
-                </span>
+                <Badge variant="muted" className="normal-case tracking-normal">
+                  {preset.shortLabel}
+                </Badge>
               )}
-              <span
-                className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs ${
-                  item.status === 'succeeded'
-                    ? 'bg-green-100 text-green-700'
-                    : 'bg-red-100 text-red-700'
-                }`}
+              <Badge
+                variant={item.status === 'succeeded' ? 'success' : 'danger'}
+                className="normal-case tracking-normal"
               >
                 {item.status}
-              </span>
+              </Badge>
             </div>
-            {item.error_message && (
-              <p className="mt-1.5 line-clamp-1 break-words text-xs text-destructive">{item.error_message}</p>
-            )}
-            <p className="mt-1.5 text-xs text-muted-foreground">
-              {new Date(item.created_at).toLocaleDateString()}
-            </p>
           </div>
         </Link>
         <button
           type="button"
           onClick={(e) => { e.preventDefault(); e.stopPropagation(); setDialogOpen(true) }}
-          className="absolute right-2 top-2 rounded-md bg-background/80 px-2 py-1 text-xs text-destructive opacity-0 backdrop-blur transition-opacity hover:bg-background group-hover:opacity-100"
+          className="absolute right-2 top-2 rounded-md bg-background/80 px-2 py-1 text-[11px] text-destructive opacity-0 backdrop-blur transition-opacity hover:bg-background group-hover:opacity-100"
         >
           Delete
         </button>

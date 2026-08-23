@@ -65,15 +65,15 @@ export function ProfileForm({ profile, onUpdate }: ProfileFormProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Profile</CardTitle>
+        <CardTitle className="text-[16px]">Profile</CardTitle>
       </CardHeader>
       <form onSubmit={handleSubmit}>
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <Label>Email</Label>
             <Input value={profile.email} disabled />
-            <p className="text-xs text-muted-foreground">
-              Email cannot be changed
+            <p className="text-[12px] text-muted-foreground">
+              Email cannot be changed.
             </p>
           </div>
           <div className="space-y-2">
@@ -85,7 +85,7 @@ export function ProfileForm({ profile, onUpdate }: ProfileFormProps) {
               placeholder="Your full name"
             />
             {errors.full_name && (
-              <p className="text-sm text-destructive">{errors.full_name}</p>
+              <p className="text-[13px] text-destructive">{errors.full_name}</p>
             )}
           </div>
           <div className="space-y-2">
@@ -97,11 +97,11 @@ export function ProfileForm({ profile, onUpdate }: ProfileFormProps) {
               placeholder="https://example.com/avatar.png"
             />
             {errors.avatar_url && (
-              <p className="text-sm text-destructive">{errors.avatar_url}</p>
+              <p className="text-[13px] text-destructive">{errors.avatar_url}</p>
             )}
           </div>
           <Button type="submit" disabled={loading}>
-            {loading ? 'Saving...' : 'Save changes'}
+            {loading ? 'Saving…' : 'Save changes'}
           </Button>
         </CardContent>
       </form>

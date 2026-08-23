@@ -1,7 +1,9 @@
 'use client'
 
 import { useState } from 'react'
+import { Download } from 'lucide-react'
 import { downloadImageFile } from '@/lib/download'
+import { Button } from '@/components/ui/button'
 
 interface HistoryDownloadButtonProps {
   imageUrl: string | null
@@ -33,15 +35,15 @@ export function HistoryDownloadButton({
 
   return (
     <div className="flex flex-col items-start gap-1">
-      <button
+      <Button
         type="button"
         onClick={handleDownload}
         disabled={disabled || downloading}
-        className="rounded-md bg-primary px-4 py-1.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
       >
+        <Download className="h-4 w-4" />
         {downloading ? 'Downloading…' : 'Download'}
-      </button>
-      {error && <p className="text-xs text-destructive">{error}</p>}
+      </Button>
+      {error && <p className="text-[12px] text-destructive">{error}</p>}
     </div>
   )
 }

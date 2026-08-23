@@ -1,5 +1,7 @@
 'use client'
 
+import { KitQuestion } from '@/components/kit/kit-question'
+import { cn } from '@/lib/utils'
 import { KitAnswers, ToneOption } from '@/types'
 
 interface StepProps {
@@ -8,21 +10,25 @@ interface StepProps {
   brandName: string
 }
 
-const TONE_OPTIONS: { value: ToneOption; label: string }[] = [
-  { value: 'formal', label: 'Formal' },
-  { value: 'casual', label: 'Casual' },
-  { value: 'playful', label: 'Playful' },
-  { value: 'professional', label: 'Professional' },
-  { value: 'friendly', label: 'Friendly' },
+const TONE_OPTIONS: { value: ToneOption; label: string; descriptor: string }[] = [
+  { value: 'formal', label: 'Formal', descriptor: 'Reserved, precise, a little distant.' },
+  { value: 'casual', label: 'Casual', descriptor: 'Easy, conversational, like a friend.' },
+  { value: 'playful', label: 'Playful', descriptor: 'Light on its feet, a wink in the copy.' },
+  { value: 'professional', label: 'Professional', descriptor: 'Clear, competent, no wasted words.' },
+  { value: 'friendly', label: 'Friendly', descriptor: 'Warm, open, glad you showed up.' },
 ]
 
 export function StepTone({ answers, onChange }: StepProps) {
+  const selected = TONE_OPTIONS.find((o) => o.value === answers.tone)
+
   return (
-    <div className="space-y-4">
-      <h2 className="text-xl font-semibold">Screen 3 of 7 — Tone</h2>
-      <p className="text-sm text-muted-foreground">
-        What tone should your content have?
-      </p>
+    <div className="space-y-6">
+      <KitQuestion
+        before="How should it "
+        emphasis="sound"
+        after="?"
+        helper="Pick the voice Basar should paint in."
+      />
       <div className="flex flex-wrap gap-3">
         {TONE_OPTIONS.map((option) => (
           <button
@@ -30,16 +36,20 @@ export function StepTone({ answers, onChange }: StepProps) {
             type="button"
             onClick={() => onChange({ tone: option.value })}
             aria-pressed={answers.tone === option.value}
-            className={`rounded-md border px-4 py-2 text-sm font-medium transition-colors ${
+            className={cn(
+              'h-10 rounded-md border px-4 text-[13px] font-medium transition-colors duration-fast',
               answers.tone === option.value
-                ? 'border-blue-600 bg-blue-50 text-blue-700'
-                : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
-            }`}
+                ? 'border-brand bg-brand-weak text-foreground'
+                : 'border-border bg-card hover:bg-accent',
+            )}
           >
             {option.label}
           </button>
         ))}
       </div>
+      {selected && (
+        <p className="text-[14px] italic text-muted-foreground">{selected.descriptor}</p>
+      )}
     </div>
   )
 }

@@ -8,27 +8,25 @@ export default function AccountPage() {
 
   if (loading) {
     return (
-      <div>
-        <h1 className="text-2xl font-semibold">Account Settings</h1>
-        <p className="mt-4 text-muted-foreground">Loading profile...</p>
+      <div className="mx-auto max-w-[620px]">
+        <h1 className="text-[30px] font-semibold leading-[1.16] tracking-tight">Account</h1>
+        <p className="mt-4 text-muted-foreground">Loading profile…</p>
       </div>
     )
   }
 
   if (error || !profile) {
     return (
-      <div>
-        <h1 className="text-2xl font-semibold">Account Settings</h1>
-        <p className="mt-4 text-destructive">
-          {error || 'Failed to load profile'}
-        </p>
+      <div className="mx-auto max-w-[620px]">
+        <h1 className="text-[30px] font-semibold leading-[1.16] tracking-tight">Account</h1>
+        <p className="mt-4 text-destructive">{error || 'Failed to load profile'}</p>
       </div>
     )
   }
 
   return (
-    <div>
-      <h1 className="mb-6 text-2xl font-semibold">Account Settings</h1>
+    <div className="mx-auto max-w-[620px]">
+      <h1 className="mb-6 text-[30px] font-semibold leading-[1.16] tracking-tight">Account</h1>
       <ProfileForm profile={profile} onUpdate={mutate} />
     </div>
   )

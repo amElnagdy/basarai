@@ -3,6 +3,9 @@
 import { useState } from 'react'
 import { apiRequest } from '@/lib/api'
 import { Brand } from '@/types'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import {
   Dialog,
   DialogContent,
@@ -54,36 +57,31 @@ export function CreateBrandModal({ open, onOpenChange, onBrandCreated }: CreateB
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Create Brand</DialogTitle>
+          <DialogTitle>Create brand</DialogTitle>
           <DialogDescription>
-            Enter a name for your new brand.
+            Name a studio. You can add a kit, keys, and a logo after.
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit}>
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Enter brand name"
-            className="w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            autoFocus
-          />
-          {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
-          <DialogFooter className="mt-4">
-            <button
-              type="button"
-              onClick={() => handleOpenChange(false)}
-              className="rounded-md border px-4 py-2 text-sm hover:bg-gray-50"
-            >
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="brand-name">Brand name</Label>
+            <Input
+              id="brand-name"
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Enter brand name"
+              autoFocus
+            />
+          </div>
+          {error && <p className="text-[13px] text-destructive">{error}</p>}
+          <DialogFooter>
+            <Button type="button" variant="ghost" onClick={() => handleOpenChange(false)}>
               Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={loading || !name.trim()}
-              className="rounded-md bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700 disabled:opacity-50"
-            >
-              {loading ? 'Creating...' : 'Create'}
-            </button>
+            </Button>
+            <Button type="submit" disabled={loading || !name.trim()}>
+              {loading ? 'Creating…' : 'Create'}
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

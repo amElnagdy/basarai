@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { Notice } from '@/components/ui/notice'
 
 interface ErrorMessageProps {
   code: string
@@ -8,20 +9,16 @@ interface ErrorMessageProps {
 
 export function ErrorMessage({ code, message, brandId }: ErrorMessageProps) {
   return (
-    <div className="rounded-md border border-destructive/30 bg-destructive/5 p-4">
-      <p className="text-sm font-medium text-destructive">
-        {message}
-      </p>
+    <Notice variant="danger">
+      {message}{' '}
       {code === 'INVALID_KEY' && (
-        <p className="mt-2 text-sm">
-          <Link
-            href={`/${brandId}/keys`}
-            className="text-destructive underline underline-offset-2"
-          >
-            Review your provider keys
-          </Link>
-        </p>
+        <Link
+          href={`/${brandId}/keys`}
+          className="font-medium underline underline-offset-2"
+        >
+          Review your keys
+        </Link>
       )}
-    </div>
+    </Notice>
   )
 }

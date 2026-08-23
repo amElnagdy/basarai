@@ -1,5 +1,8 @@
 'use client'
 
+import { KitQuestion } from '@/components/kit/kit-question'
+import { Notice } from '@/components/ui/notice'
+import { formatHex, normalizeHex } from '@/components/brand/brand-workspace'
 import { KitAnswers, KitStatus } from '@/types'
 
 interface StepReviewProps {
@@ -20,8 +23,6 @@ export function StepReview({
   savedSummary,
   savedStatus,
   isDirty,
-  onSave,
-  saving,
   saveError,
 }: StepReviewProps) {
   const missingRequired: string[] = []
@@ -32,75 +33,95 @@ export function StepReview({
   const hasSaved = !isDirty && saveError === null && savedStatus !== 'not_started'
 
   return (
-    <div className="space-y-4">
-      <h2 className="text-xl font-semibold">Screen 7 of 7 — Review &amp; Save</h2>
+    <div className="space-y-6">
+      <KitQuestion
+        before="Ready to "
+        emphasis="save"
+        after="?"
+        helper={`${brandName} — a short interview so Basar can paint in its voice.`}
+      />
 
-      <div className="space-y-2 rounded-md border border-gray-200 p-4 text-sm">
-        <p><span className="font-medium">Brand:</span> {brandName}</p>
-        <p><span className="font-medium">Tagline:</span> {answers.tagline || '— not specified —'}</p>
-        <p><span className="font-medium">Tone:</span> {answers.tone || '— not specified —'}</p>
-        <p><span className="font-medium">Audience:</span> {answers.audience || '— not specified —'}</p>
-        <p><span className="font-medium">Colors:</span> {answers.colors.length > 0 ? answers.colors.join(', ') : '— not specified —'}</p>
-        <p><span className="font-medium">Avoid words:</span> {answers.avoid_words || '— not specified —'}</p>
+      <div className="overflow-hidden rounded-lg border border-border">
+        <table className="w-full text-[14px]">
+          <tbody>
+            <Row label="Tagline" value={answers.tagline || '—'} />
+            <Row label="Tone" value={answers.tone || '—'} />
+            <Row label="Audience" value={answers.audience || '—'} />
+            <tr className="border-t border-border-subtle">
+              <th className="w-32 px-4 py-3 text-left font-medium text-muted-foreground">Colors</th>
+              <td className="px-4 py-3">
+                {answers.colors.length > 0 ? (
+                  <span className="flex flex-wrap items-center gap-2">
+                    {answers.colors.map((c, i) => {
+                      const hex = normalizeHex(c) ? formatHex(c) : c
+                      return (
+                        <span key={`${c}-${i}`} className="inline-flex items-center gap-1.5">
+                          <span
+                            className="inline-block h-[22px] w-[22px] rounded-md border border-border"
+                            style={{ background: hex }}
+                          />
+                          <span className="font-mono text-[12px]">
+                            {hex}{i === 0 ? ' primary' : ''}
+                          </span>
+                        </span>
+                      )
+                    })}
+                  </span>
+                ) : (
+                  '—'
+                )}
+              </td>
+            </tr>
+            <Row label="Avoid" value={answers.avoid_words || '—'} />
+          </tbody>
+        </table>
       </div>
 
       {missingRequired.length > 0 && (
-        <div
-          role="status"
-          aria-live="polite"
-          className="rounded-md border border-yellow-300 bg-yellow-50 p-3 text-sm text-yellow-900"
-        >
-          <p className="font-medium">Required fields still missing:</p>
-          <ul className="mt-1 list-disc pl-5">
-            {missingRequired.map((f) => (
-              <li key={f}>{f}</li>
-            ))}
-          </ul>
-          <p className="mt-2">
-            You can still save now — your kit will be stored as{' '}
-            <span className="font-medium">&quot;In progress&quot;</span> until all required fields are filled.
-          </p>
-        </div>
+        <Notice variant="warning">
+          <p className="font-medium">Still missing: {missingRequired.join(', ')}.</p>
+          <p className="mt-1">You can save now — the kit stays in progress until those are filled.</p>
+        </Notice>
       )}
 
       {hasSaved && savedStatus === 'complete' && (
-        <div role="status" aria-live="polite" className="rounded-md border border-green-300 bg-green-50 p-3 text-sm text-green-900">
-          &#10003; Brand kit saved — status: Complete.
-        </div>
+        <Notice variant="success">Brand kit saved — complete.</Notice>
       )}
 
       {hasSaved && savedStatus === 'in_progress' && (
-        <div role="status" aria-live="polite" className="rounded-md border border-yellow-300 bg-yellow-50 p-3 text-sm text-yellow-900">
-          Brand kit saved — status: In progress. Fill in the remaining required fields to reach Complete.
-        </div>
+        <Notice variant="warning">
+          Brand kit saved — in progress. Fill the remaining required fields to reach complete.
+        </Notice>
       )}
 
       <div className="space-y-2">
-        <h3 className="text-sm font-medium">Brand Context Summary (what the AI will use)</h3>
+        <h3 className="text-[13px] font-medium">What the model will use</h3>
         {savedSummary ? (
           <>
-            <pre className="whitespace-pre-wrap rounded bg-gray-50 p-3 text-sm">{savedSummary}</pre>
+            <pre className="whitespace-pre-wrap rounded-md bg-surface-sunken p-3 font-sans text-[13px] leading-relaxed">
+              {savedSummary}
+            </pre>
             {isDirty && (
-              <p className="text-xs italic text-muted-foreground">You have unsaved changes — the summary will update after Save.</p>
+              <p className="text-[12px] italic text-muted-foreground">
+                You have unsaved changes — the summary updates after save.
+              </p>
             )}
           </>
         ) : (
-          <p className="text-sm text-muted-foreground">Summary will be generated after you save.</p>
+          <p className="text-[13px] text-muted-foreground">Summary is generated after you save.</p>
         )}
       </div>
 
-      {saveError && (
-        <p className="text-sm text-red-600">{saveError}</p>
-      )}
-
-      <button
-        type="button"
-        onClick={onSave}
-        disabled={saving}
-        className="rounded-md bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700 disabled:opacity-50"
-      >
-        {saving ? 'Saving...' : 'Save Brand Kit'}
-      </button>
+      {saveError && <p className="text-[13px] text-destructive">{saveError}</p>}
     </div>
+  )
+}
+
+function Row({ label, value }: { label: string; value: string }) {
+  return (
+    <tr className="border-t border-border-subtle first:border-t-0">
+      <th className="w-32 px-4 py-3 text-left font-medium text-muted-foreground">{label}</th>
+      <td className="px-4 py-3">{value}</td>
+    </tr>
   )
 }
