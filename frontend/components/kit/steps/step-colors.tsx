@@ -98,7 +98,7 @@ export function StepColors({ answers, onChange }: StepProps) {
           </div>
         </div>
 
-        <BrandWorkspace color={primary}>
+        <BrandWorkspace color={primary} syncRoot={false}>
           <div className="rounded-lg border border-border bg-card p-[18px] shadow-xs">
             <p className="text-micro font-semibold uppercase tracking-[0.09em] text-muted-foreground">
               Live preview

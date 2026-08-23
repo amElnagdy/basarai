@@ -31,6 +31,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const { profile } = useProfile()
   const [createOpen, setCreateOpen] = useState(false)
   const [navOpen, setNavOpen] = useState(false)
+  const [narrow, setNarrow] = useState(false)
 
   const wearBrand = Boolean(currentBrandId) && !isNeutralRoute(pathname)
   const accent = currentBrandId ? accents[currentBrandId] : undefined
@@ -38,6 +39,14 @@ export function AppShell({ children }: { children: ReactNode }) {
   useEffect(() => {
     setNavOpen(false)
   }, [pathname])
+
+  useEffect(() => {
+    const media = window.matchMedia('(max-width: 767px)')
+    const sync = () => setNarrow(media.matches)
+    sync()
+    media.addEventListener('change', sync)
+    return () => media.removeEventListener('change', sync)
+  }, [])
 
   function handleBrandCreated(brand: Brand) {
     addBrand(brand)
@@ -55,6 +64,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         />
       )}
       <div
+        inert={narrow && !navOpen ? true : undefined}
         className={cn(
           'z-40 h-full w-[248px] max-md:fixed max-md:inset-y-0 max-md:left-0 max-md:bg-background max-md:shadow-lg max-md:transition-transform max-md:duration-fast max-md:ease-out',
           navOpen ? 'max-md:translate-x-0' : 'max-md:-translate-x-full',

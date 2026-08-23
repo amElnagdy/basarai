@@ -15,7 +15,7 @@ export function PresetSelector({ value, onChange, disabled }: PresetSelectorProp
   return (
     <div className="flex flex-col gap-2">
       <Eyebrow>Platform</Eyebrow>
-      <div className="flex flex-wrap gap-2">
+      <div role="radiogroup" aria-label="Platform" className="flex flex-wrap gap-2">
         {Object.entries(PRESETS_BY_PLATFORM).flatMap(([platform, presets]) =>
           presets.map((presetId) => (
             <PresetFrame

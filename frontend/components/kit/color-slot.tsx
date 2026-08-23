@@ -80,9 +80,9 @@ export function ColorSlot({
         )}
         <Input
           type="text"
-          value={draft.toUpperCase()}
+          value={draft}
           onChange={(e) => {
-            const next = e.target.value
+            const next = e.target.value.toUpperCase()
             setDraft(next)
             onChange(next)
           }}

@@ -20,6 +20,8 @@ export function PresetFrame({ preset, platform, selected, disabled, onSelect }: 
   return (
     <button
       type="button"
+      role="radio"
+      aria-checked={selected}
       onClick={onSelect}
       disabled={disabled}
       className={cn(

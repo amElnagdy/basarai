@@ -50,14 +50,22 @@ export interface BrandWorkspaceProps {
   color?: string | null
   className?: string
   children: React.ReactNode
+  /** When false, only the wrapper is re-skinned. Nested previews must not own documentElement. */
+  syncRoot?: boolean
 }
 
-export function BrandWorkspace({ color, className, children }: BrandWorkspaceProps) {
+export function BrandWorkspace({
+  color,
+  className,
+  children,
+  syncRoot = true,
+}: BrandWorkspaceProps) {
   const normalized = normalizeHex(color ?? '')
   const brand = normalized ? `#${normalized}` : BASAR_ACCENT
   const onBrand = onBrandTextColor(brand)
 
   useEffect(() => {
+    if (!syncRoot) return
     const root = document.documentElement
     const previousBrand = root.style.getPropertyValue('--brand')
     const previousOnBrand = root.style.getPropertyValue('--on-brand')
@@ -69,7 +77,7 @@ export function BrandWorkspace({ color, className, children }: BrandWorkspacePro
       if (previousOnBrand) root.style.setProperty('--on-brand', previousOnBrand)
       else root.style.removeProperty('--on-brand')
     }
-  }, [brand, onBrand])
+  }, [brand, onBrand, syncRoot])
 
   return (
     <div
