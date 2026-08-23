@@ -83,12 +83,17 @@ export function HistoryCard({ item, brandId, search, onDelete }: HistoryCardProp
                 {item.status}
               </Badge>
             </div>
+            {item.error_message && (
+              <p className="mt-1.5 line-clamp-1 break-words text-[12px] text-destructive">
+                {item.error_message}
+              </p>
+            )}
           </div>
         </Link>
         <button
           type="button"
           onClick={(e) => { e.preventDefault(); e.stopPropagation(); setDialogOpen(true) }}
-          className="absolute right-2 top-2 rounded-md bg-background/80 px-2 py-1 text-[11px] text-destructive opacity-0 backdrop-blur transition-opacity hover:bg-background group-hover:opacity-100"
+          className="absolute right-2 top-2 rounded-md bg-background/80 px-2 py-1 text-[11px] text-destructive opacity-0 backdrop-blur transition-opacity hover:bg-background focus-visible:opacity-100 max-md:opacity-100 group-hover:opacity-100"
         >
           Delete
         </button>

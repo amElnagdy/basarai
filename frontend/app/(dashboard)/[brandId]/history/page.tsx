@@ -70,7 +70,8 @@ export default function HistoryPage({ params }: HistoryPageProps) {
         <div>
           <h1 className="text-[30px] font-semibold leading-[1.16] tracking-tight">History</h1>
           <p className="mt-1 text-[14px] text-muted-foreground">
-            {brand?.name ?? 'Brand'} · {items.length}{hasNext ? '+' : ''} generations
+            {brand?.name ?? 'Brand'} · {visibleItems.length}
+            {hasNext ? '+' : ''} {preset ? 'matching' : 'generations'}
           </p>
         </div>
         <HistoryFilters

@@ -44,6 +44,7 @@ export function KitWizard({ brandId, brandName, initialKit }: KitWizardProps) {
   const [saveError, setSaveError] = useState<string | null>(null)
   const router = useRouter()
   const { setAccent, updateBrand } = useBrands()
+  const persistedColor = useRef(initialKit.answers.colors[0] ?? null)
 
   const handleChange = useCallback((partial: Partial<KitAnswers>) => {
     setAnswers(prev => ({ ...prev, ...partial }))
@@ -51,8 +52,15 @@ export function KitWizard({ brandId, brandName, initialKit }: KitWizardProps) {
   }, [])
 
   useEffect(() => {
-    if (answers.colors[0]) setAccent(brandId, answers.colors[0])
+    const next = answers.colors[0]
+    if (next && isKitColor(next)) setAccent(brandId, next)
   }, [answers.colors, brandId, setAccent])
+
+  useEffect(() => {
+    return () => {
+      setAccent(brandId, persistedColor.current)
+    }
+  }, [brandId, setAccent])
 
   const handleSave = async () => {
     if (saving) return
@@ -63,6 +71,7 @@ export function KitWizard({ brandId, brandName, initialKit }: KitWizardProps) {
       setSavedSummary(saved.summary)
       setSavedStatus(saved.status)
       setIsDirty(false)
+      persistedColor.current = saved.answers.colors[0] ?? null
       if (saved.answers.colors[0]) setAccent(brandId, saved.answers.colors[0])
       updateBrand({ id: brandId, kit_status: saved.status })
       router.refresh()

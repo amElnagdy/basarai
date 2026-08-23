@@ -66,4 +66,4 @@ You, Log out.
 بَصَر *baṣar* = **sight / vision / insight**. Wordmark is "Basar" in Instrument
 Serif, optionally beside بَصَر. No mark ships yet.
 
-The implementation source of truth is `design_handoff_basar_studio/README.md`.
+Shipped tokens live in `frontend/app/globals.css` and `frontend/tailwind.config.ts`.

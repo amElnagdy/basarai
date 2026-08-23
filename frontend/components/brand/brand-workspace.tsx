@@ -1,10 +1,15 @@
+'use client'
+
 /**
  * The app wears the brand. One wrapper sets --brand / --on-brand from
  * kit colors[0]; descendants re-mix hover, ring, and weak fills.
  *
  * Accent only — never paint a large surface or body copy with the raw hex.
+ * The same vars are copied onto documentElement so Radix portals (dialogs,
+ * toasts) still resolve the workspace accent.
  */
 import * as React from 'react'
+import { useEffect } from 'react'
 
 /** Basar's own default accent (petrol) when a brand has no kit color yet. */
 export const BASAR_ACCENT = '#1E6E82'
@@ -50,13 +55,29 @@ export interface BrandWorkspaceProps {
 export function BrandWorkspace({ color, className, children }: BrandWorkspaceProps) {
   const normalized = normalizeHex(color ?? '')
   const brand = normalized ? `#${normalized}` : BASAR_ACCENT
+  const onBrand = onBrandTextColor(brand)
+
+  useEffect(() => {
+    const root = document.documentElement
+    const previousBrand = root.style.getPropertyValue('--brand')
+    const previousOnBrand = root.style.getPropertyValue('--on-brand')
+    root.style.setProperty('--brand', brand)
+    root.style.setProperty('--on-brand', onBrand)
+    return () => {
+      if (previousBrand) root.style.setProperty('--brand', previousBrand)
+      else root.style.removeProperty('--brand')
+      if (previousOnBrand) root.style.setProperty('--on-brand', previousOnBrand)
+      else root.style.removeProperty('--on-brand')
+    }
+  }, [brand, onBrand])
+
   return (
     <div
       className={className}
       style={
         {
           '--brand': brand,
-          '--on-brand': onBrandTextColor(brand),
+          '--on-brand': onBrand,
         } as React.CSSProperties
       }
     >

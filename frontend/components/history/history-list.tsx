@@ -47,14 +47,28 @@ export function HistoryList({
     )
   }
 
+  const loadMore = hasNext ? (
+    <div className="flex justify-center">
+      <Button
+        type="button"
+        variant="outline"
+        onClick={onLoadMore}
+        disabled={loadingMore}
+      >
+        {loadingMore ? 'Loading…' : 'Load more'}
+      </Button>
+    </div>
+  ) : null
+
   if (items.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 text-center">
+      <div className="flex flex-col items-center justify-center gap-6 py-20 text-center">
         <p className="text-muted-foreground">
           {filtered
             ? 'No history items match the selected filters.'
             : 'No generation history yet. Create your first image on Generate.'}
         </p>
+        {loadMore}
       </div>
     )
   }
@@ -66,18 +80,7 @@ export function HistoryList({
           <HistoryCard key={item.id} item={item} brandId={brandId} search={search} onDelete={onDelete} />
         ))}
       </div>
-      {hasNext && (
-        <div className="flex justify-center">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={onLoadMore}
-            disabled={loadingMore}
-          >
-            {loadingMore ? 'Loading…' : 'Load more'}
-          </Button>
-        </div>
-      )}
+      {loadMore}
     </div>
   )
 }

@@ -117,7 +117,8 @@
   a:hover { color: var(--brand); }
 
   :focus-visible {
-    outline: none;
+    outline: 2px solid var(--brand);
+    outline-offset: 2px;
   }
 
   ::selection {
