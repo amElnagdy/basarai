@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
+import { auth } from '@clerk/nextjs/server'
 
 // Server-side operator gate. The backend `/admin/*` 403 is the real security
 // control; this hides the Admin UI from non-operators without leaking the
@@ -21,17 +21,17 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode
 }) {
-  const supabase = await createClient()
-  const {
-    data: { session },
-  } = await supabase.auth.getSession()
-
-  if (!session) {
+  const { userId, getToken } = await auth()
+  if (!userId) {
+    notFound()
+  }
+  const token = await getToken()
+  if (!token) {
     notFound()
   }
 
   const response = await fetch(`${BACKEND_INTERNAL_URL}/me`, {
-    headers: { Authorization: `Bearer ${session.access_token}` },
+    headers: { Authorization: `Bearer ${token}` },
     cache: 'no-store',
   })
 

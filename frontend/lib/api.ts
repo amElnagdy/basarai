@@ -1,4 +1,23 @@
-import { createClient } from './supabase/client'
+declare global {
+  interface Window {
+    Clerk?: {
+      loaded?: boolean
+      session?: { getToken: () => Promise<string | null> } | null
+      signOut: (opts?: { redirectUrl?: string }) => Promise<unknown>
+    }
+  }
+}
+
+// ClerkProvider can render children before ClerkJS finishes initializing
+// window.Clerk. Wait for it (bounded) so cold-load requests from effects
+// don't go out unauthenticated and 401.
+async function waitForClerk(timeoutMs = 5000): Promise<void> {
+  if (typeof window === 'undefined') return
+  const start = Date.now()
+  while (!window.Clerk?.loaded && Date.now() - start < timeoutMs) {
+    await new Promise((resolve) => setTimeout(resolve, 50))
+  }
+}
 
 export class ApiError extends Error {
   code: string
@@ -59,17 +78,17 @@ export async function apiRequest<T = unknown>(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<T> {
-  const supabase = createClient()
-  const { data: { session } } = await supabase.auth.getSession()
-
   const headers = new Headers(options.headers)
 
   if (!headers.has('Content-Type') && !(options.body instanceof FormData)) {
     headers.set('Content-Type', 'application/json')
   }
 
-  if (session?.access_token) {
-    headers.set('Authorization', `Bearer ${session.access_token}`)
+  await waitForClerk()
+  const token =
+    typeof window !== 'undefined' ? await window.Clerk?.session?.getToken() : null
+  if (token) {
+    headers.set('Authorization', `Bearer ${token}`)
   }
 
   const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}${endpoint}`, {
@@ -79,8 +98,11 @@ export async function apiRequest<T = unknown>(
 
   if (response.status === 401) {
     if (typeof window !== 'undefined') {
-      await supabase.auth.signOut()
-      window.location.href = '/login'
+      if (window.Clerk?.loaded) {
+        await window.Clerk.signOut({ redirectUrl: '/login' })
+      } else {
+        window.location.href = '/login'
+      }
     }
     throw new ApiError('Unauthorized', 'UNAUTHORIZED')
   }

@@ -27,7 +27,7 @@ def test_empty_or_unset_allow_list_denies_everyone(monkeypatch, admin_emails):
 
 def test_get_current_admin_user_denies_non_operator(monkeypatch):
     monkeypatch.setattr("app.core.auth.settings.ADMIN_EMAILS", "op@example.com")
-    user = User(id="u1", email="nope@example.com", access_token="t")
+    user = User(id="u1", email="nope@example.com")
 
     with pytest.raises(HTTPException) as exc:
         get_current_admin_user(user=user)
@@ -38,6 +38,6 @@ def test_get_current_admin_user_denies_non_operator(monkeypatch):
 
 def test_get_current_admin_user_returns_operator(monkeypatch):
     monkeypatch.setattr("app.core.auth.settings.ADMIN_EMAILS", "op@example.com")
-    user = User(id="u1", email="op@example.com", access_token="t")
+    user = User(id="u1", email="op@example.com")
 
     assert get_current_admin_user(user=user) == user
