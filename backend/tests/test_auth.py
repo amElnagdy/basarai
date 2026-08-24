@@ -6,7 +6,7 @@ import pytest
 from cryptography.hazmat.primitives.asymmetric import ec, rsa
 from fastapi import HTTPException
 from fastapi.security import HTTPAuthorizationCredentials
-from jwt import PyJWKClientError
+from jwt import PyJWKClientConnectionError, PyJWKClientError
 
 import app.core.auth as auth_mod
 from app.config import settings
@@ -188,7 +188,7 @@ def test_supabase_shaped_es256_token_returns_401(monkeypatch):
 
 def test_jwks_unreachable_returns_5xx_not_401(monkeypatch, private_key):
     def boom(_token):
-        raise PyJWKClientError("unable to fetch JWKS")
+        raise PyJWKClientConnectionError("unable to fetch JWKS")
 
     monkeypatch.setattr(
         auth_mod._jwks_client,
@@ -250,5 +250,18 @@ def test_malformed_token_returns_401_not_500():
     creds = HTTPAuthorizationCredentials(scheme="Bearer", credentials="garbage")
     with pytest.raises(HTTPException) as exc:
         get_current_user(creds)
+    assert exc.value.status_code == 401
+    assert exc.value.detail["error"]["code"] == "INVALID_TOKEN"
+
+
+def test_unknown_kid_returns_401_not_503(monkeypatch, private_key):
+    def raise_lookup(_token):
+        raise PyJWKClientError('Unable to find a signing key that matches: "kid"')
+
+    monkeypatch.setattr(
+        auth_mod._jwks_client, "get_signing_key_from_jwt", raise_lookup
+    )
+    with pytest.raises(HTTPException) as exc:
+        _call(make_token(private_key))
     assert exc.value.status_code == 401
     assert exc.value.detail["error"]["code"] == "INVALID_TOKEN"

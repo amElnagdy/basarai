@@ -5,7 +5,7 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel
 import jwt
-from jwt import PyJWKClient, PyJWKClientError, PyJWTError
+from jwt import PyJWKClient, PyJWKClientConnectionError, PyJWKClientError, PyJWTError
 
 from app.config import settings
 from app.core.supabase import get_service_client
@@ -102,15 +102,17 @@ def get_current_user(
 
     try:
         signing_key = _jwks_client.get_signing_key_from_jwt(token)
-    except PyJWKClientError:
+    except PyJWKClientConnectionError:
+        # JWKS endpoint unreachable — a real outage, not a bad token.
         logger.exception("JWKS client failed while verifying token")
         raise _auth_error(
             status.HTTP_503_SERVICE_UNAVAILABLE,
             "SERVICE_UNAVAILABLE",
             "Authentication service unavailable",
         ) from None
-    except PyJWTError:
-        # Malformed token (e.g. not enough segments) — never a server error.
+    except (PyJWKClientError, PyJWTError):
+        # Malformed token, or a kid the JWKS does not know — attacker-controlled
+        # input, never a server error.
         logger.warning("Invalid authentication token")
         raise _auth_error(
             status.HTTP_401_UNAUTHORIZED,

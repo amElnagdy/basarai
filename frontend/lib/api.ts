@@ -1,9 +1,21 @@
 declare global {
   interface Window {
     Clerk?: {
-      session?: { getToken: () => Promise<string | null> }
+      loaded?: boolean
+      session?: { getToken: () => Promise<string | null> } | null
       signOut: (opts?: { redirectUrl?: string }) => Promise<unknown>
     }
+  }
+}
+
+// ClerkProvider can render children before ClerkJS finishes initializing
+// window.Clerk. Wait for it (bounded) so cold-load requests from effects
+// don't go out unauthenticated and 401.
+async function waitForClerk(timeoutMs = 5000): Promise<void> {
+  if (typeof window === 'undefined') return
+  const start = Date.now()
+  while (!window.Clerk?.loaded && Date.now() - start < timeoutMs) {
+    await new Promise((resolve) => setTimeout(resolve, 50))
   }
 }
 
@@ -72,6 +84,7 @@ export async function apiRequest<T = unknown>(
     headers.set('Content-Type', 'application/json')
   }
 
+  await waitForClerk()
   const token =
     typeof window !== 'undefined' ? await window.Clerk?.session?.getToken() : null
   if (token) {
@@ -85,7 +98,11 @@ export async function apiRequest<T = unknown>(
 
   if (response.status === 401) {
     if (typeof window !== 'undefined') {
-      await window.Clerk?.signOut({ redirectUrl: '/login' })
+      if (window.Clerk?.loaded) {
+        await window.Clerk.signOut({ redirectUrl: '/login' })
+      } else {
+        window.location.href = '/login'
+      }
     }
     throw new ApiError('Unauthorized', 'UNAUTHORIZED')
   }
