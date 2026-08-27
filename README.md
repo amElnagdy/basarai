@@ -1,3 +1,12 @@
+---
+title: Basarai
+emoji: 🚀
+colorFrom: blue
+colorTo: indigo
+sdk: docker
+app_port: 3000
+---
+
 # Basar AI
 
 Multi-brand social image generator. Built with Next.js 14, FastAPI, and Supabase.
