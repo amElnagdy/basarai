@@ -57,7 +57,7 @@ Clerk ships an agent-oriented setup guide at <https://clerk.com/SKILL.md> built 
 
 1. From `frontend/`: `npx clerk@latest init` — creates the Clerk app (dev instance) and writes `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` / `CLERK_SECRET_KEY` into `.env.local`. Review its diff: it may scaffold `middleware.ts`/`ClerkProvider` with defaults — keep our versions from Step 3. If it fails, create the app in <https://dashboard.clerk.com> and copy the keys.
 2. ⟲ **SDK version:** Next is pinned to `14.2.35`; `@clerk/nextjs` v7 (Core 3) requires Next 15.2+. Install **`npm i --save-exact @clerk/nextjs@latest-v6`** and make sure `init` did not leave v7 in `package.json`. (Alternative: bump Next to 15 first — bigger change, separate branch, not this one.)
-3. **User & Authentication → Email, Phone, Username:** enable Email address (required), Password, *Email verification link* for sign-in and sign-up. ⟲ Keep the default **"Require the same device and browser"** — cross-device magic links weren't asked for and same-device is safer.
+3. **User & Authentication → Email, Phone, Username:** enable Email address (required), Password, *Email verification link* for sign-in and sign-up. ⟲ **"Require the same device and browser": OFF on the development instance, ON in production.** Found during testing (2026-10-01): on a dev instance Clerk identifies the browser by a cookie on `*.clerk.accounts.dev` that is only reached through redirects, and browser tracking protections can drop it, so a same-browser click came back `__clerk_status=client_mismatch`. Production runs Clerk on our own domain with first-party cookies, where the check works as intended.
 4. **Sessions → Customize session token:** add
    ```json
    { "email": "{{user.primary_email_address}}" }
@@ -186,6 +186,7 @@ Files:
 - `CLERK_AUTHORIZED_PARTIES` must include the origin the browser actually uses: `http://localhost:3001` under `make up`, `http://localhost:3000` for `npm run dev`, the HTTPS origin on Bunny Magic.
 - ⟲ Docs to update so they aren't lying: `CLAUDE.md` + `AGENTS.md` (Supabase/Deployment env lists, "JWT verification" bullet), `README.md` (env table + the Supabase Auth redirect-URL instructions), `docs/docker.md` (runtime-env table, Bunny setup, stale JWT troubleshooting note), `frontend/.env.local.example`, `backend/.env.example`. `docs/auth-deck.html` is an untracked slide deck — update only if it's meant to stay current.
 - Bunny Magic: add the new env vars; rebuild the image whenever the baked publishable key changes (dev → prod instance).
+- Production Clerk instance: confirm **"Require the same device and browser" is ON** (it is deliberately off on the dev instance, see Step 0.3).
 
 ### Step 5 — Tests & cleanup
 
