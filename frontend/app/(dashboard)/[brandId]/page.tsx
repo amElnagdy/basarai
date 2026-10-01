@@ -1,6 +1,6 @@
 import { headers } from 'next/headers'
 import { notFound, redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
+import { auth } from '@clerk/nextjs/server'
 import { GeneratorForm } from '@/components/generation/generator-form'
 import type { Brand } from '@/types'
 
@@ -24,14 +24,14 @@ async function getServerApiUrl(path: string) {
 }
 
 async function loadBrand(brandId: string): Promise<Brand> {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  const { data: { session } } = await supabase.auth.getSession()
-  if (!user || !session?.access_token) redirect('/login')
+  const { userId, getToken } = await auth()
+  if (!userId) redirect('/login')
+  const token = await getToken()
+  if (!token) redirect('/login')
 
   const apiUrl = await getServerApiUrl(`/brands/${brandId}`)
   const response = await fetch(apiUrl, {
-    headers: { Authorization: `Bearer ${session.access_token}` },
+    headers: { Authorization: `Bearer ${token}` },
     cache: 'no-store',
   })
   if (response.status === 404) notFound()

@@ -4,7 +4,7 @@ Multi-brand social image generator. Built with Next.js 14, FastAPI, and Supabase
 
 ## Quick Start (Docker)
 
-Get the app running in 5 steps. You need **Docker**, **Node.js/npm** (for the Supabase CLI in step 4), and a **Supabase project**.
+Get the app running in 5 steps. You need **Docker**, **Node.js/npm** (for the Supabase CLI in step 4), a **Supabase project**, and a **Clerk** application.
 
 ### 1. Clone and enter the repo
 
@@ -12,15 +12,22 @@ Get the app running in 5 steps. You need **Docker**, **Node.js/npm** (for the Su
 git clone <repo-url> && cd basarai
 ```
 
-### 2. Get your Supabase credentials
+### 2. Get your Supabase and Clerk credentials
 
 From the [Supabase Dashboard](https://supabase.com/dashboard) → your project → **Settings → API**, grab:
 
 | Value | Where to find it |
 |-------|-----------------|
 | **Project URL** | Settings → API (e.g. `https://xxxxx.supabase.co`) |
-| **Publishable key** | Settings → API → Project API keys |
 | **Secret key** | Settings → API → Project API keys (reveal) |
+
+Supabase is the database, storage, and vault. Auth is Clerk. From the [Clerk Dashboard](https://dashboard.clerk.com) → **API Keys** (Frontend API host is under Advanced):
+
+| Value | Where to find it |
+|-------|-----------------|
+| **Publishable key** | `pk_test_…` / `pk_live_…` |
+| **Secret key** | `sk_test_…` / `sk_live_…` |
+| **Issuer** | `https://<frontend-api-host>` |
 
 ### 3. Create your env files
 
@@ -32,18 +39,28 @@ cp backend/.env.example backend/.env
 cp frontend/.env.local.example frontend/.env.local
 ```
 
-Edit **`backend/.env`** — fill in Supabase values:
+Edit **`backend/.env`** — fill in Supabase and Clerk values:
 
 ```bash
 SUPABASE_URL=https://xxxxx.supabase.co
 SUPABASE_SECRET_KEY=sb_secret_...
+CLERK_SECRET_KEY=sk_test_...
+CLERK_ISSUER=https://<frontend-api-host>
+CLERK_AUTHORIZED_PARTIES=http://localhost:3001,http://localhost:3000
 ```
 
-Edit **`frontend/.env.local`** — fill in URL and publishable key:
+`CLERK_AUTHORIZED_PARTIES` must include the origin the browser actually uses (`http://localhost:3001` under `make up`, `http://localhost:3000` for `npm run dev`, the HTTPS origin in production).
+
+Edit **`frontend/.env.local`**:
 
 ```bash
 NEXT_PUBLIC_SUPABASE_URL=https://xxxxx.supabase.co
-NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
+CLERK_SECRET_KEY=sk_test_...
+NEXT_PUBLIC_CLERK_SIGN_IN_URL=/login
+NEXT_PUBLIC_CLERK_SIGN_UP_URL=/signup
+NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL=/brands
+NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL=/brands
 ```
 
 ### 4. Set up the database
@@ -63,9 +80,7 @@ Then create the **`brand-assets`** storage bucket in the Dashboard → **Storage
 - **File size limit**: 5 MB
 - **Allowed MIME types**: `image/png, image/jpeg, image/webp`
 
-Finally, configure auth redirects in the Dashboard → **Authentication → URL Configuration**:
-- **Site URL**: `http://localhost:3000`
-- **Redirect URLs**: add `http://localhost:3000/auth/confirm`
+In Clerk, set sign-in `/login`, sign-up `/signup`, and after-sign-in / after-sign-up `/brands`. Add the session token claim `{ "email": "{{user.primary_email_address}}" }` so the backend can read the email.
 
 ### 5. Build and run
 
@@ -95,7 +110,7 @@ For active development with hot-reload, run the backend and frontend directly.
 
 ```bash
 cd backend
-cp .env.example .env   # fill in Supabase credentials (see step 2 above)
+cp .env.example .env   # fill in Supabase and Clerk credentials (see step 2 above)
 python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
@@ -106,7 +121,7 @@ uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 
 ```bash
 cd frontend
-cp .env.local.example .env.local   # fill in Supabase credentials (see step 2 above)
+cp .env.local.example .env.local   # fill in Clerk + Supabase URL (see step 2 above)
 npm install
 npm run dev
 ```

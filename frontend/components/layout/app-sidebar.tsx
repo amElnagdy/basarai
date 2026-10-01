@@ -1,7 +1,8 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname, useRouter } from 'next/navigation'
+import { usePathname } from 'next/navigation'
+import { useClerk } from '@clerk/nextjs'
 import {
   History,
   Key,
@@ -13,7 +14,6 @@ import {
   Sparkles,
   User,
 } from 'lucide-react'
-import { createClient } from '@/lib/supabase/client'
 import { BrandDot } from '@/components/brand/brand-dot'
 import { Badge } from '@/components/ui/badge'
 import { Eyebrow } from '@/components/ui/eyebrow'
@@ -38,15 +38,12 @@ export function AppSidebar({
   onCreateBrand,
 }: AppSidebarProps) {
   const pathname = usePathname()
-  const router = useRouter()
+  const { signOut } = useClerk()
   const activeBrand = brands.find((b) => b.id === currentBrandId) ?? brands[0]
   const workspaceId = currentBrandId ?? activeBrand?.id
 
   async function handleLogout() {
-    const supabase = createClient()
-    await supabase.auth.signOut()
-    router.push('/login')
-    router.refresh()
+    await signOut({ redirectUrl: '/login' })
   }
 
   const nav = workspaceId

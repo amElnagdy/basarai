@@ -1,71 +1,23 @@
-import { createServerClient } from '@supabase/ssr'
-import { NextResponse, type NextRequest } from 'next/server'
+import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
+import { NextResponse } from 'next/server'
 
-export async function middleware(request: NextRequest) {
-  let supabaseResponse = NextResponse.next({
-    request,
-  })
+// /api/* is proxied to FastAPI, which verifies the bearer token itself. Leaving
+// it public means an expired session gets the backend's 401 JSON (which
+// lib/api.ts handles) instead of a 307 to the login page's HTML.
+const isPublic = createRouteMatcher([
+  '/',
+  '/login(.*)',
+  '/signup(.*)',
+  '/auth/(.*)',
+  '/api/(.*)',
+])
+const isAuthPage = createRouteMatcher(['/login(.*)', '/signup(.*)'])
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return request.cookies.getAll()
-        },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) => {
-            request.cookies.set(name, value)
-          })
-          supabaseResponse = NextResponse.next({
-            request,
-          })
-          cookiesToSet.forEach(({ name, value, options }) => {
-            supabaseResponse.cookies.set(name, value, options)
-          })
-        },
-      },
-    }
-  )
-
-  // IMPORTANT: Use getUser() not getSession() for server-side validation
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  const { pathname } = request.nextUrl
-
-  // Auth pages: redirect authenticated users to /brands
-  if (user && (pathname === '/login' || pathname === '/signup')) {
-    const url = request.nextUrl.clone()
-    url.pathname = '/brands'
-    const redirectResponse = NextResponse.redirect(url)
-    supabaseResponse.headers.getSetCookie().forEach((cookie) => {
-      redirectResponse.headers.append('set-cookie', cookie)
-    })
-    return redirectResponse
-  }
-
-  // Protected routes: redirect unauthenticated users to /login
-  if (
-    !user &&
-    pathname !== '/login' &&
-    pathname !== '/signup' &&
-    pathname !== '/' &&
-    !pathname.startsWith('/auth/')
-  ) {
-    const url = request.nextUrl.clone()
-    url.pathname = '/login'
-    const redirectResponse = NextResponse.redirect(url)
-    supabaseResponse.headers.getSetCookie().forEach((cookie) => {
-      redirectResponse.headers.append('set-cookie', cookie)
-    })
-    return redirectResponse
-  }
-
-  return supabaseResponse
-}
+export default clerkMiddleware(async (auth, req) => {
+  const { userId } = await auth()
+  if (userId && isAuthPage(req)) return NextResponse.redirect(new URL('/brands', req.url))
+  if (!isPublic(req)) await auth.protect()
+})
 
 export const config = {
   matcher: [

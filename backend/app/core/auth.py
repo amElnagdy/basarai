@@ -5,9 +5,10 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel
 import jwt
-from jwt import PyJWKClient, PyJWTError
+from jwt import PyJWKClient, PyJWKClientConnectionError, PyJWKClientError, PyJWTError
 
 from app.config import settings
+from app.core.supabase import get_service_client
 
 logger = logging.getLogger(__name__)
 
@@ -15,7 +16,7 @@ logger = logging.getLogger(__name__)
 security = HTTPBearer(auto_error=False)
 
 _jwks_client = PyJWKClient(
-    f"{settings.SUPABASE_URL}/auth/v1/.well-known/jwks.json",
+    f"{settings.CLERK_ISSUER}/.well-known/jwks.json",
     cache_jwk_set=True,
     lifespan=3600,
     timeout=5,
@@ -25,7 +26,6 @@ _jwks_client = PyJWKClient(
 class User(BaseModel):
     id: str
     email: str
-    access_token: str
 
 
 def is_admin_email(email: str) -> bool:
@@ -49,7 +49,48 @@ def _auth_error(status_code: int, code: str, message: str) -> HTTPException:
     )
 
 
-def get_current_user(credentials: Optional[HTTPAuthorizationCredentials] = Depends(security)) -> User:
+def _authorized_parties() -> list[str]:
+    return [p.strip() for p in settings.CLERK_AUTHORIZED_PARTIES.split(",") if p.strip()]
+
+
+def resolve_profile(clerk_id: str) -> str:
+    """Map a Clerk user id (JWT sub) to the internal profiles.user_id UUID."""
+    client = get_service_client()
+    result = (
+        client.table("profiles")
+        .select("user_id")
+        .eq("clerk_user_id", clerk_id)
+        .execute()
+    )
+    rows = result.data or []
+    if rows and rows[0].get("user_id"):
+        return str(rows[0]["user_id"])
+
+    client.table("profiles").upsert(
+        {"clerk_user_id": clerk_id},
+        on_conflict="clerk_user_id",
+        ignore_duplicates=True,
+    ).execute()
+
+    result = (
+        client.table("profiles")
+        .select("user_id")
+        .eq("clerk_user_id", clerk_id)
+        .execute()
+    )
+    rows = result.data or []
+    if not rows or not rows[0].get("user_id"):
+        raise _auth_error(
+            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            "INTERNAL_ERROR",
+            "Failed to resolve user profile",
+        )
+    return str(rows[0]["user_id"])
+
+
+def get_current_user(
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
+) -> User:
     if credentials is None:
         raise _auth_error(
             status.HTTP_401_UNAUTHORIZED,
@@ -57,33 +98,85 @@ def get_current_user(credentials: Optional[HTTPAuthorizationCredentials] = Depen
             "Missing authentication credentials",
         )
 
+    token = credentials.credentials
+
     try:
-        signing_key = _jwks_client.get_signing_key_from_jwt(credentials.credentials)
+        signing_key = _jwks_client.get_signing_key_from_jwt(token)
+    except PyJWKClientConnectionError:
+        # JWKS endpoint unreachable — a real outage, not a bad token.
+        logger.exception("JWKS client failed while verifying token")
+        raise _auth_error(
+            status.HTTP_503_SERVICE_UNAVAILABLE,
+            "SERVICE_UNAVAILABLE",
+            "Authentication service unavailable",
+        ) from None
+    except (PyJWKClientError, PyJWTError):
+        # Malformed token, or a kid the JWKS does not know — attacker-controlled
+        # input, never a server error.
+        logger.warning("Invalid authentication token")
+        raise _auth_error(
+            status.HTTP_401_UNAUTHORIZED,
+            "INVALID_TOKEN",
+            "Invalid authentication token",
+        ) from None
+
+    try:
         payload = jwt.decode(
-            credentials.credentials,
+            token,
             signing_key.key,
-            algorithms=["RS256", "ES256"],
-            audience="authenticated",
+            algorithms=["RS256"],
+            issuer=settings.CLERK_ISSUER,
+            leeway=5,
+            options={
+                "verify_aud": False,
+                "require": ["exp", "nbf", "iat", "iss", "sub"],
+            },
         )
-        user_id: str = payload.get("sub")
-        email: str = payload.get("email")
-
-        if user_id is None or email is None:
-            raise _auth_error(
-                status.HTTP_401_UNAUTHORIZED,
-                "INVALID_TOKEN",
-                "Token payload missing required claims",
-            )
-
-        return User(id=user_id, email=email, access_token=credentials.credentials)
-
     except PyJWTError:
-        logger.exception("JWT decode failed")
+        logger.warning("Invalid authentication token")
+        raise _auth_error(
+            status.HTTP_401_UNAUTHORIZED,
+            "INVALID_TOKEN",
+            "Invalid authentication token",
+        ) from None
+
+    azp = payload.get("azp")
+    if not isinstance(azp, str) or not azp or azp not in _authorized_parties():
+        logger.warning("Invalid authentication token")
         raise _auth_error(
             status.HTTP_401_UNAUTHORIZED,
             "INVALID_TOKEN",
             "Invalid authentication token",
         )
+
+    sub = payload.get("sub")
+    email = payload.get("email")
+    if (
+        not isinstance(sub, str)
+        or not sub.strip()
+        or not isinstance(email, str)
+        or not email.strip()
+    ):
+        logger.warning("Invalid authentication token")
+        raise _auth_error(
+            status.HTTP_401_UNAUTHORIZED,
+            "INVALID_TOKEN",
+            "Token payload missing required claims",
+        )
+
+    try:
+        user_id = resolve_profile(sub)
+    except HTTPException:
+        raise
+    except Exception:
+        logger.exception("Failed to resolve profile")
+        raise _auth_error(
+            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            "INTERNAL_ERROR",
+            "Failed to resolve user profile",
+        ) from None
+
+    return User(id=user_id, email=email)
 
 
 def get_current_admin_user(user: User = Depends(get_current_user)) -> User:

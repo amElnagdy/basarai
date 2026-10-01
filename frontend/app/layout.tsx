@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { Instrument_Serif, Hanken_Grotesk } from "next/font/google";
+import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "@/components/ui/toaster";
 import "./globals.css";
 
@@ -40,8 +41,10 @@ export default function RootLayout({
       className={`${display.variable} ${sans.variable} ${geistMono.variable}`}
     >
       <body className="font-sans antialiased">
-        {children}
-        <Toaster />
+        <ClerkProvider>
+          {children}
+          <Toaster />
+        </ClerkProvider>
       </body>
     </html>
   );

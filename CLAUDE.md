@@ -63,12 +63,11 @@ Python 3.13 (backend), TypeScript 5.x (frontend): Follow standard conventions
 ### CRITICAL: API Key Migration (2026-03)
 
 Supabase deprecated legacy key names. This project uses the NEW naming:
-- **Backend**: `SUPABASE_SECRET_KEY` (was `SUPABASE_SERVICE_ROLE_KEY`) — the only backend key needed
-- **Frontend**: `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (was `NEXT_PUBLIC_SUPABASE_ANON_KEY`)
-- **Removed entirely**: `SUPABASE_ANON_KEY`, `SUPABASE_JWT_SECRET` — dead code, do NOT re-add
-- **JWT verification**: JWKS asymmetric (RS256/ES256) via `PyJWKClient`, NOT HS256 + shared secret
-- JWKS endpoint: `{SUPABASE_URL}/auth/v1/.well-known/jwks.json`
-- Docs: https://supabase.com/docs/guides/api/api-keys | https://supabase.com/docs/guides/auth/jwts
+- **Backend**: `SUPABASE_SECRET_KEY` (was `SUPABASE_SERVICE_ROLE_KEY`) — the only backend key needed for DB, storage, and vault
+- **Frontend**: `NEXT_PUBLIC_SUPABASE_URL` stays (next/image remotePatterns for Storage). Do NOT add `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` — auth is Clerk, not Supabase Auth
+- **Removed entirely**: `SUPABASE_ANON_KEY`, `SUPABASE_JWT_SECRET`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` — dead code, do NOT re-add
+- **JWT verification**: Clerk session JWTs, RS256 via `PyJWKClient`. Issuer is `CLERK_ISSUER`; JWKS is `{CLERK_ISSUER}/.well-known/jwks.json`. `azp` must be in `CLERK_AUTHORIZED_PARTIES`. Do not use HS256 or a shared secret
+- Docs: https://supabase.com/docs/guides/api/api-keys | https://clerk.com/docs/backend-requests/handling/manual-jwt
 - `get_user_client()` was deleted (dead code) — only `get_service_client()` exists
 
 ## Deployment
@@ -77,8 +76,8 @@ Supabase deprecated legacy key names. This project uses the NEW naming:
 - Single-container strategy: both frontend (Next.js) and backend (FastAPI) in one image
 - HTTPS termination handled by platform; container serves HTTP only
 - Docker commands: `make up` (build+run), `make logs`, `make down`, `make health`
-- Build args (baked into JS): `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
-- Runtime env (via `--env-file backend/.env`): `SUPABASE_URL`, `SUPABASE_SECRET_KEY`
+- Build args (baked into JS): `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`
+- Runtime env (via `--env-file backend/.env`): `SUPABASE_URL`, `SUPABASE_SECRET_KEY`, `CLERK_SECRET_KEY`, `CLERK_ISSUER`, `CLERK_AUTHORIZED_PARTIES`
 
 ## Code Review
 

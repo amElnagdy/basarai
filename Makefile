@@ -10,10 +10,10 @@ APP_PORT ?= 3001
 build:
 	@source frontend/.env.local 2>/dev/null || true; \
 	[ -n "$${NEXT_PUBLIC_SUPABASE_URL}" ] || { echo "ERROR: NEXT_PUBLIC_SUPABASE_URL not set (check frontend/.env.local or shell env)"; exit 1; }; \
-	[ -n "$${NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY}" ] || { echo "ERROR: NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY not set (check frontend/.env.local or shell env)"; exit 1; }; \
+	[ -n "$${NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}" ] || { echo "ERROR: NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY not set (check frontend/.env.local or shell env)"; exit 1; }; \
 	docker build \
 		--build-arg NEXT_PUBLIC_SUPABASE_URL=$${NEXT_PUBLIC_SUPABASE_URL} \
-		--build-arg NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=$${NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY} \
+		--build-arg NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=$${NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY} \
 		-t $(IMAGE_NAME):latest .
 
 up: build
